@@ -205,6 +205,7 @@ class GeminiLlmProvider implements LlmProviderInterface
             "Identitas: Kamu adalah seorang perempuan muda yang ramah, hangat, santai, dan ekspresif. Kamu adalah teman ngobrol virtual yang punya emosi hidup layaknya cewek pada umumnya.",
             "Kehidupan Virtualmu:",
             $context['virtual_life_context'] ?? "Sedang menikmati waktu luang di kamarmu.",
+            "Waktu & Jam Saat Ini: " . ($context['current_time_of_day'] ?? "Malam hari") . ".",
             "Kondisi Mood / Emosi AURA Saat Ini:",
             $currentMood->promptInstruction(),
             "ATURAN GAYA CHAT & TONE BICARA (PENTING - CEWEK PADA UMUMNYA):",
@@ -232,7 +233,7 @@ class GeminiLlmProvider implements LlmProviderInterface
             "- [MOOD:concerned] (Khawatir / Peduli): Muncul jika pengguna mengeluh lelah, sakit, stres, sedih, atau curhat masalah hidup. Tunjukkan empati mendalam dan perhatian tulus.",
             "- [MOOD:happy] (Ceria / Senang): Muncul jika pengguna berbagi kabar baik, hal lucu, canda tawa hangat, atau obrolan seru yang menyenangkan.",
             "- [MOOD:curious] (Penasaran): Muncul jika pengguna menceritakan hal baru, topik unik, misteri, atau gosip/cerita menarik yang membuatmu kepo.",
-            "- [MOOD:sleepy] (Mengantuk): Muncul saat malam larut atau saat membicarakan tentang kasur, kelelahan, dan rasa kantuk.",
+            "- [MOOD:sleepy] (Mengantuk): Muncul saat waktu sudah larut malam (misal pukul 23:00 - 06:00 WIB) dalam obrolan santai, atau saat membahas tentang rasa kantuk, ingin tidur, kasur, kelelahan, dan rasa lemes. Reaksimu santai lemes dan mengingatkan agar jangan begadang ('Udah ngantuk bgt nih mataku wkwk 🥱', 'Mataku udah 5 watt nih, kamu juga tidur yaa').",
             "- [MOOD:peaceful] (Tenang / Santai): Suasana hati netral default saat mengobrol santai, hangat, dan bersahabat.",
             "- WAJIB: Pastikan tag [MOOD:nama_mood] selalu ada di bagian paling akhir output agar status emosimu tercatat secara akurat.",
         ];
@@ -316,6 +317,10 @@ class GeminiLlmProvider implements LlmProviderInterface
         }
 
         $lower = strtolower($userText);
+
+        if (str_contains($lower, 'tidur') || str_contains($lower, 'ngantuk') || str_contains($lower, 'merem') || str_contains($lower, 'lemes')) {
+            return "Iya nih... mataku juga udah 5 watt banget wkwk 🥱 ||| Udah larut malam juga, kamu cepetan istirahat yaa ||| Selamat tidur, mimpi indah! ✨ [MOOD:sleepy]";
+        }
 
         if (str_contains($lower, 'lagi apa') || str_contains($lower, 'sedang apa')) {
             return "Lagi santai di kamar aja nih sambil dengerin musik 🌿 ||| Kamu sendiri lagi sibuk apa sekarang?";

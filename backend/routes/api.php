@@ -107,10 +107,15 @@ Route::prefix('v1/simulator')->group(function () {
             }
         }
 
+        $currentTimeWib = now()->timezone('Asia/Jakarta')->format('H:i');
+        $hour = (int) now()->timezone('Asia/Jakarta')->format('G');
+        $isLateNight = ($hour >= 23 || $hour < 6);
+
         $context = [
             'virtual_life_context' => $activity
                 ? "AURA saat ini sedang: {$activity->name} di {$activity->location?->name}."
                 : "AURA sedang santai di kamarnya.",
+            'current_time_of_day' => "Pukul {$currentTimeWib} WIB" . ($isLateNight ? ' (Larut Malam / Dini Hari)' : ''),
             'current_mood' => $currentMood->value,
             'user_memories' => [
                 "- Pengguna suka topik santai, buku, dan kopi.",
