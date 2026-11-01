@@ -24,37 +24,53 @@ class GeminiLlmProvider implements LlmProviderInterface
             return $this->fallbackResponse($context, $userMessage);
         }
 
-        try {
-            $systemPrompt = $this->buildSystemInstruction($context);
-            $contents = $this->buildContents($context, $userMessage);
+        $candidateModels = array_unique([
+            $this->model,
+            'gemini-3.1-flash-lite',
+            'gemini-3.5-flash',
+            'gemini-flash-latest',
+        ]);
 
-            $endpoint = "https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent?key={$this->apiKey}";
+        $systemPrompt = $this->buildSystemInstruction($context);
+        $contents = $this->buildContents($context, $userMessage);
 
-            $response = Http::timeout(15)->post($endpoint, [
-                'system_instruction' => [
-                    'parts' => [
-                        ['text' => $systemPrompt]
-                    ]
-                ],
-                'contents' => $contents,
-                'generationConfig' => [
-                    'temperature' => 0.85,
-                    'topP' => 0.95,
-                    'maxOutputTokens' => 500,
-                ],
-            ]);
+        foreach ($candidateModels as $candidateModel) {
+            try {
+                $endpoint = "https://generativelanguage.googleapis.com/v1beta/models/{$candidateModel}:generateContent?key={$this->apiKey}";
 
-            if ($response->successful()) {
-                $data = $response->json();
-                $reply = $data['candidates'][0]['content']['parts'][0]['text'] ?? null;
-                if (!empty($reply)) {
-                    return trim($reply);
+                $response = Http::timeout(18)->post($endpoint, [
+                    'system_instruction' => [
+                        'parts' => [
+                            ['text' => $systemPrompt]
+                        ]
+                    ],
+                    'contents' => $contents,
+                    'generationConfig' => [
+                        'temperature' => 0.85,
+                        'topP' => 0.95,
+                        'maxOutputTokens' => 1000,
+                    ],
+                ]);
+
+                if ($response->successful()) {
+                    $data = $response->json();
+                    $parts = $data['candidates'][0]['content']['parts'] ?? [];
+                    $texts = [];
+                    foreach ($parts as $p) {
+                        if (isset($p['text']) && empty($p['thought'])) {
+                            $texts[] = $p['text'];
+                        }
+                    }
+                    $reply = trim(implode("\n", $texts));
+                    if (!empty($reply)) {
+                        return $reply;
+                    }
+                } else {
+                    Log::warning("Gemini model {$candidateModel} returned {$response->status()}: " . substr($response->body(), 0, 150));
                 }
-            } else {
-                Log::warning("Gemini API error: {$response->status()} - {$response->body()}");
+            } catch (\Throwable $e) {
+                Log::warning("Gemini exception with model {$candidateModel}: {$e->getMessage()}");
             }
-        } catch (\Throwable $e) {
-            Log::error("Gemini API exception: {$e->getMessage()}");
         }
 
         return $this->fallbackResponse($context, $userMessage);
@@ -70,33 +86,43 @@ class GeminiLlmProvider implements LlmProviderInterface
             ];
         }
 
-        try {
-            $prompt = "Kamu adalah AURA, AI companion wanita berkarakter hangat dan estetik 2D anime. Kamu sedang melakukan aktivitas virtual: '{$activityName}' di lokasi virtual: '{$locationName}' (Kategori: {$category}). Buat 1 judul singkat, 1 paragraf narasi santai (2-3 kalimat) yang natural seperti sedang cerita ke teman dekat, dan 1 caption singkat dengan emoji. Format JSON: {\"title\": \"...\", \"narrative\": \"...\", \"caption\": \"...\"}";
+        $candidateModels = array_unique([
+            $this->model,
+            'gemini-3.1-flash-lite',
+            'gemini-3.5-flash',
+        ]);
 
-            $endpoint = "https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent?key={$this->apiKey}";
+        $prompt = "Kamu adalah AURA, AI companion wanita berkarakter hangat dan estetik 2D anime. Kamu sedang melakukan aktivitas virtual: '{$activityName}' di lokasi virtual: '{$locationName}' (Kategori: {$category}). Buat 1 judul singkat, 1 paragraf narasi santai (2-3 kalimat) yang natural seperti sedang cerita ke teman dekat, dan 1 caption singkat dengan emoji. Format JSON: {\"title\": \"...\", \"narrative\": \"...\", \"caption\": \"...\"}";
 
-            $response = Http::timeout(10)->post($endpoint, [
-                'contents' => [
-                    ['role' => 'user', 'parts' => [['text' => $prompt]]]
-                ],
-                'generationConfig' => [
-                    'responseMimeType' => 'application/json',
-                    'temperature' => 0.8,
-                ]
-            ]);
+        foreach ($candidateModels as $candidateModel) {
+            try {
+                $endpoint = "https://generativelanguage.googleapis.com/v1beta/models/{$candidateModel}:generateContent?key={$this->apiKey}";
 
-            if ($response->successful()) {
-                $json = json_decode($response->json('candidates.0.content.parts.0.text'), true);
-                if (isset($json['title'], $json['narrative'])) {
-                    return [
-                        'title' => $json['title'],
-                        'narrative' => $json['narrative'],
-                        'caption' => $json['caption'] ?? 'Momen santai bersama AURA 🌿',
-                    ];
+                $response = Http::timeout(18)->post($endpoint, [
+                    'contents' => [
+                        ['role' => 'user', 'parts' => [['text' => $prompt]]]
+                    ],
+                    'generationConfig' => [
+                        'responseMimeType' => 'application/json',
+                        'temperature' => 0.8,
+                    ]
+                ]);
+
+                if ($response->successful()) {
+                    $rawText = $response->json('candidates.0.content.parts.0.text') ?? '';
+                    $cleaned = preg_replace('/^```(?:json)?\s*|\s*```$/i', '', trim($rawText));
+                    $json = json_decode($cleaned, true);
+                    if (is_array($json) && isset($json['title'], $json['narrative'])) {
+                        return [
+                            'title' => $json['title'],
+                            'narrative' => $json['narrative'],
+                            'caption' => $json['caption'] ?? 'Momen santai bersama AURA 🌿',
+                        ];
+                    }
                 }
+            } catch (\Throwable $e) {
+                Log::warning("Gemini moment narrative error with model {$candidateModel}: {$e->getMessage()}");
             }
-        } catch (\Throwable $e) {
-            Log::warning("Gemini moment narrative error: {$e->getMessage()}");
         }
 
         return [

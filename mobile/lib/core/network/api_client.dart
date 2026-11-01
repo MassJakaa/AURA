@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../constants/api_constants.dart';
 
@@ -17,8 +18,21 @@ class ApiResponse<T> {
 }
 
 class ApiClient {
-  String _baseUrl = ApiConstants.localBaseUrl;
+  late String _baseUrl;
   String? _authToken;
+
+  ApiClient({String? baseUrl}) {
+    if (baseUrl != null) {
+      _baseUrl = baseUrl;
+    } else if (kIsWeb) {
+      _baseUrl = ApiConstants.localBaseUrl;
+    } else if (defaultTargetPlatform == TargetPlatform.android) {
+      // Connect to host PC on LAN so physical phone and emulator both work
+      _baseUrl = 'http://192.168.1.39:8000/api/v1';
+    } else {
+      _baseUrl = ApiConstants.localBaseUrl;
+    }
+  }
 
   void setBaseUrl(String url) => _baseUrl = url;
   void setAuthToken(String token) => _authToken = token;
