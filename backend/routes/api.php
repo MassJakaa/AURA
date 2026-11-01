@@ -76,20 +76,6 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 // Dedicated Web Simulator endpoints (for direct browser preview without login)
 Route::prefix('v1/simulator')->group(function () {
     Route::get('/status', [LifeController::class, 'status']);
-    Route::post('/mood', function (Request $request) {
-        $moodVal = $request->input('mood');
-        $mood = \App\Enums\CharacterMood::fromString($moodVal);
-        \Illuminate\Support\Facades\Cache::put('aura_simulator_mood', $mood->value, now()->addDays(1));
-
-        return response()->json([
-            'success' => true,
-            'current_mood' => [
-                'value' => $mood->value,
-                'label' => $mood->label(),
-                'emoji' => $mood->emoji(),
-            ],
-        ]);
-    });
     Route::post('/chat', function (Request $request, \App\Services\Character\CharacterService $charService, \App\Services\Activity\ActivityEngine $actEngine, \App\Domain\Ai\LlmProviderInterface $llm) {
         $messagesInput = $request->input('messages');
         if (is_array($messagesInput) && !empty($messagesInput)) {

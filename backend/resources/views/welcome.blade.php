@@ -307,103 +307,32 @@
             opacity: 0.9;
         }
 
-        /* Mood Pill & Selector */
+        /* Dynamic Natural Mood Pill */
         .mood-pill {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            padding: 4px 10px;
+            gap: 6px;
+            padding: 4px 11px;
             border-radius: 20px;
             background: #F4EFE6;
             border: 1px solid var(--border);
             font-size: 11px;
             font-weight: 600;
             color: var(--text-main);
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .mood-pill:hover {
-            background: #EDE6D8;
-            transform: scale(1.04);
+            cursor: default;
+            user-select: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .mood-pill.pop {
-            animation: moodPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: moodPop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         @keyframes moodPop {
-            0% { transform: scale(0.9); }
-            50% { transform: scale(1.15); }
-            100% { transform: scale(1); }
-        }
-
-        /* Mood Picker Modal */
-        .mood-picker-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(2px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 50;
-            padding: 20px;
-            animation: fadeIn 0.15s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .mood-picker-card {
-            background: white;
-            border-radius: 20px;
-            padding: 18px;
-            width: 100%;
-            max-width: 320px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
-            border: 1px solid var(--border);
-            animation: slideUpModal 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes slideUpModal {
-            from { transform: translateY(15px) scale(0.96); opacity: 0; }
-            to { transform: translateY(0) scale(1); opacity: 1; }
-        }
-
-        .mood-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-
-        .mood-chip {
-            padding: 9px 12px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            background: #FDFBF8;
-            font-size: 11.5px;
-            font-weight: 600;
-            color: var(--text-main);
-            cursor: pointer;
-            text-align: left;
-            transition: all 0.18s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .mood-chip:hover {
-            border-color: var(--accent-lavender);
-            background: #FAF7F2;
-            transform: translateY(-1px);
-        }
-
-        .mood-chip-sulking:hover {
-            border-color: #F87171;
-            background: #FEF2F2;
+            0% { transform: scale(0.92); opacity: 0.85; }
+            50% { transform: scale(1.12); }
+            100% { transform: scale(1); opacity: 1; }
         }
 
         /* Reply preview bar above input */
@@ -579,10 +508,9 @@
         <div class="status-card" id="status-box">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                 <span class="badge-live" id="badge-status">Sedang Beraktivitas</span>
-                <div class="mood-pill" id="aura-mood-pill" onclick="toggleMoodPicker()" title="Klik untuk ubah mood AURA">
+                <div class="mood-pill" id="aura-mood-pill" title="Emosi alami AURA saat ini">
                     <span id="aura-mood-emoji">✨</span>
                     <span id="aura-mood-label">Tenang & Santai</span>
-                    <span style="font-size: 9px; opacity: 0.6; margin-left: 2px;">▼</span>
                 </div>
             </div>
             <h3 class="act-name" id="act-title">Memuat status AURA...</h3>
@@ -592,7 +520,7 @@
             <p id="act-desc" style="font-size: 12.5px; color: var(--text-sub); line-height: 1.4; margin-bottom: 12px;"></p>
             <div class="time-badge">
                 <span id="act-next">Rencana selanjutnya: ...</span>
-                <span style="font-size: 11px; color: var(--accent-lavender); cursor: pointer; font-weight: 600;" onclick="toggleMoodPicker()">Ubah Mood 🎭</span>
+                <span style="font-size: 11px; color: var(--text-sub); font-weight: 500;">Emosi Alami Aktif ✨</span>
             </div>
         </div>
 
@@ -628,26 +556,6 @@
         <input type="text" id="chat-input" placeholder="Ketik pesan untuk AURA..." autocomplete="off">
         <button type="submit" id="chat-send-btn">Kirim</button>
     </form>
-
-    <!-- Mood Picker Modal/Popup -->
-    <div class="mood-picker-overlay" id="mood-picker-overlay" onclick="closeMoodPicker()" style="display: none;">
-        <div class="mood-picker-card" onclick="event.stopPropagation()">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <h4 style="font-size: 13.5px; font-weight: 700; color: var(--text-main);">Pilih Mood AURA 🎭</h4>
-                <button type="button" class="reply-bar-close" onclick="closeMoodPicker()">✕</button>
-            </div>
-            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4;">Mood ini akan langsung mempengaruhi sikap, gaya bicara, dan emoji AURA saat membalas pesan.</p>
-            <div class="mood-grid">
-                <button type="button" class="mood-chip" onclick="selectMood('happy')">✨ Ceria & Senang</button>
-                <button type="button" class="mood-chip mood-chip-sulking" onclick="selectMood('sulking')">😤 Ngambek / Kesal</button>
-                <button type="button" class="mood-chip" onclick="selectMood('shy')">😳 Malu & Salting</button>
-                <button type="button" class="mood-chip" onclick="selectMood('peaceful')">🍵 Tenang & Santai</button>
-                <button type="button" class="mood-chip" onclick="selectMood('concerned')">🥺 Khawatir & Peduli</button>
-                <button type="button" class="mood-chip" onclick="selectMood('curious')">🧐 Penasaran</button>
-                <button type="button" class="mood-chip" onclick="selectMood('sleepy')">🥱 Mengantuk</button>
-            </div>
-        </div>
-    </div>
 </div>
 
 <script>
@@ -820,33 +728,7 @@
         }, 5000);
     }
 
-    // Mood Controller
-    function toggleMoodPicker() {
-        const overlay = document.getElementById('mood-picker-overlay');
-        overlay.style.display = overlay.style.display === 'none' ? 'flex' : 'none';
-    }
-
-    function closeMoodPicker() {
-        document.getElementById('mood-picker-overlay').style.display = 'none';
-    }
-
-    async function selectMood(moodVal) {
-        closeMoodPicker();
-        try {
-            const res = await fetch('/api/v1/simulator/mood', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({ mood: moodVal })
-            });
-            const data = await res.json();
-            if (data.success && data.current_mood) {
-                updateMoodDisplay(data.current_mood);
-            }
-        } catch (e) {
-            console.error(e);
-        }
-    }
-
+    // Natural Emotion / Mood Presentation
     function updateMoodDisplay(moodObj) {
         if (!moodObj) return;
         const emojiEl = document.getElementById('aura-mood-emoji');
@@ -863,15 +745,31 @@
             if (moodObj.value === 'sulking') {
                 pillEl.style.background = '#FEE2E2';
                 pillEl.style.borderColor = '#FCA5A5';
+                pillEl.style.color = '#991B1B';
             } else if (moodObj.value === 'shy') {
                 pillEl.style.background = '#FCE7F3';
                 pillEl.style.borderColor = '#FBCFE8';
+                pillEl.style.color = '#9D174D';
             } else if (moodObj.value === 'happy') {
                 pillEl.style.background = '#FEF3C7';
                 pillEl.style.borderColor = '#FCD34D';
+                pillEl.style.color = '#92400E';
+            } else if (moodObj.value === 'concerned') {
+                pillEl.style.background = '#E0F2FE';
+                pillEl.style.borderColor = '#BAE6FD';
+                pillEl.style.color = '#075985';
+            } else if (moodObj.value === 'curious') {
+                pillEl.style.background = '#EDE9FE';
+                pillEl.style.borderColor = '#DDD6FE';
+                pillEl.style.color = '#5B21B6';
+            } else if (moodObj.value === 'sleepy') {
+                pillEl.style.background = '#F1F5F9';
+                pillEl.style.borderColor = '#CBD5E1';
+                pillEl.style.color = '#475569';
             } else {
                 pillEl.style.background = '#F4EFE6';
                 pillEl.style.borderColor = 'var(--border)';
+                pillEl.style.color = 'var(--text-main)';
             }
         }
     }
