@@ -197,6 +197,10 @@ class GeminiLlmProvider implements LlmProviderInterface
             $instructions[] = "Informasi Memori Pengguna:\n" . implode("\n", $context['user_memories']);
         }
 
+        if (!empty($context['reply_context'])) {
+            $instructions[] = "Informasi Balasan Pesan Pengguna:\n" . $context['reply_context'];
+        }
+
         return implode("\n", $instructions);
     }
 

@@ -226,6 +226,149 @@
             100% { transform: scale(1); }
         }
 
+        /* Reply Wrappers & Buttons */
+        .bubble-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .bubble-wrap-aura {
+            justify-content: flex-start;
+        }
+
+        .bubble-wrap-user {
+            justify-content: flex-end;
+        }
+
+        .reply-trigger-btn {
+            opacity: 0;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+
+        .bubble-wrap:hover .reply-trigger-btn {
+            opacity: 1;
+        }
+
+        .reply-trigger-btn:hover {
+            background: var(--accent-lavender);
+            color: white;
+            border-color: var(--accent-lavender);
+            transform: scale(1.1);
+        }
+
+        /* Quoted box inside message */
+        .quoted-box {
+            background: rgba(0, 0, 0, 0.05);
+            border-left: 3.5px solid var(--accent-lavender);
+            border-radius: 8px;
+            padding: 5px 8px;
+            margin-bottom: 6px;
+            font-size: 11px;
+            line-height: 1.35;
+        }
+
+        .bubble-user .quoted-box {
+            background: rgba(255, 255, 255, 0.2);
+            border-left-color: white;
+            color: #FDFBF8;
+        }
+
+        .quoted-author {
+            font-weight: 700;
+            font-size: 10.5px;
+            margin-bottom: 2px;
+            color: var(--accent-lavender);
+        }
+
+        .bubble-user .quoted-author {
+            color: #FFF;
+            opacity: 0.95;
+        }
+
+        .quoted-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 230px;
+            opacity: 0.9;
+        }
+
+        /* Reply preview bar above input */
+        .reply-preview-bar {
+            padding: 8px 14px;
+            background: #F8F5EE;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideUp 0.18s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(6px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .reply-bar-indicator {
+            width: 3.5px;
+            height: 30px;
+            border-radius: 4px;
+            background: var(--accent-lavender);
+            flex-shrink: 0;
+        }
+
+        .reply-bar-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .reply-bar-author {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent-lavender);
+            margin-bottom: 2px;
+        }
+
+        .reply-bar-snippet {
+            font-size: 11.5px;
+            color: var(--text-sub);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .reply-bar-close {
+            border: none;
+            background: none;
+            font-size: 15px;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .reply-bar-close:hover {
+            color: var(--text-main);
+            background: rgba(0,0,0,0.06);
+        }
+
         /* Typing indicator */
         .typing-bubble {
             display: inline-flex;
@@ -349,10 +492,29 @@
 
         <!-- Chat bubble area -->
         <div class="chat-container" id="chat-box">
-            <div class="bubble bubble-aura">
-                Halo! Senang bisa menyapamu malam ini. Aku sedang berada di kamarku bersiap istirahat. Ada cerita apa hari ini? 🌿
+            <div class="bubble-wrap bubble-wrap-aura">
+                <div class="bubble bubble-aura" ondblclick="startReplyFromBubble(this)">
+                    <div class="bubble-text-content">Halo! Senang bisa menyapamu malam ini. Aku sedang berada di kamarku bersiap istirahat. Ada cerita apa hari ini? 🌿</div>
+                    <div class="bubble-meta" style="color: var(--text-muted);">23:50</div>
+                </div>
+                <button type="button" class="reply-trigger-btn" onclick="startReply(this)" title="Balas pesan">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 17 4 12 9 7"></polyline>
+                        <path d="M20 18v-2a4 4 0 0 0-4-4H4"></path>
+                    </svg>
+                </button>
             </div>
         </div>
+    </div>
+
+    <!-- Reply preview bar -->
+    <div class="reply-preview-bar" id="reply-preview-bar" style="display: none;">
+        <div class="reply-bar-indicator"></div>
+        <div class="reply-bar-body">
+            <div class="reply-bar-author" id="reply-bar-author">Membalas AURA</div>
+            <div class="reply-bar-snippet" id="reply-bar-snippet">...</div>
+        </div>
+        <button type="button" class="reply-bar-close" onclick="cancelReply()" title="Batal balas">✕</button>
     </div>
 
     <!-- Input bar -->
@@ -413,6 +575,10 @@
     let silenceTimer = null;
     let readPhaseTimer = null;
 
+    // Active Reply State
+    let currentReply = null;
+    let activeReplyForBatch = null;
+
     function setHeaderStatus(text, isTyping = false) {
         const textEl = document.getElementById('header-status-text');
         const dotEl = document.getElementById('header-status-dot');
@@ -433,6 +599,38 @@
         unreadTickIds.length = 0;
     }
 
+    // Reply trigger from button or double-click
+    function startReply(btn) {
+        const wrap = btn.closest('.bubble-wrap');
+        if (!wrap) return;
+        const bubble = wrap.querySelector('.bubble');
+        if (bubble) startReplyFromBubble(bubble);
+    }
+
+    function startReplyFromBubble(bubble) {
+        const isUser = bubble.classList.contains('bubble-user');
+        const author = isUser ? 'Kamu' : 'AURA';
+        const textEl = bubble.querySelector('.bubble-text-content');
+        const text = textEl ? textEl.innerText.trim() : bubble.innerText.trim();
+
+        currentReply = { sender: author, content: text };
+
+        document.getElementById('reply-bar-author').innerText = 'Membalas ' + author;
+        document.getElementById('reply-bar-snippet').innerText = text;
+        document.getElementById('reply-preview-bar').style.display = 'flex';
+
+        const input = document.getElementById('chat-input');
+        input.placeholder = 'Ketik balasan untuk ' + author + '...';
+        input.focus();
+    }
+
+    function cancelReply() {
+        currentReply = null;
+        document.getElementById('reply-preview-bar').style.display = 'none';
+        const input = document.getElementById('chat-input');
+        input.placeholder = 'Ketik pesan untuk AURA...';
+    }
+
     // Listener while user is typing in the input box
     function handleInputActivity() {
         const input = document.getElementById('chat-input');
@@ -443,7 +641,7 @@
         clearTimeout(silenceTimer);
 
         if (hasText) {
-            // User is actively typing! Hold off AURA from reading or replying:
+            // User is actively typing! Hold off AURA from reading:
             if (!isAuraProcessing) {
                 if (isAuraReading) {
                     clearTimeout(readPhaseTimer);
@@ -455,7 +653,6 @@
 
         userTypingTimer = setTimeout(() => {
             userIsTyping = false;
-            // When user stops typing, check if silence is reached to start reading
             if (pendingUserMessages.length > 0 && !isAuraProcessing && !isAuraReading) {
                 checkSilenceAndRead();
             }
@@ -466,10 +663,10 @@
         clearTimeout(silenceTimer);
         const input = document.getElementById('chat-input');
         if (input.value.trim().length > 0 || userIsTyping) {
-            return; // User is still typing something
+            return; // User is still typing
         }
 
-        // Wait 1200ms of user silence before AURA starts reading
+        // Wait 1200ms of silence before AURA starts reading
         silenceTimer = setTimeout(() => {
             const currentVal = document.getElementById('chat-input').value.trim();
             if (currentVal.length === 0 && !userIsTyping && pendingUserMessages.length > 0 && !isAuraProcessing && !isAuraReading) {
@@ -489,12 +686,12 @@
         // Header status: "Membaca pesan..."
         setHeaderStatus('Membaca pesan...');
 
-        // Extended read duration (3.2 seconds)
+        // Extended read duration: UBAH KE 5 DETIK (5000ms)
         clearTimeout(readPhaseTimer);
         readPhaseTimer = setTimeout(() => {
             isAuraReading = false;
             triggerAuraResponse();
-        }, 3200);
+        }, 5000);
     }
 
     async function loadStatus() {
@@ -533,18 +730,40 @@
         const chatBox = document.getElementById('chat-box');
         const scroll = document.getElementById('content-scroll');
 
-        // Create user bubble with WhatsApp tick
+        // Check if there is an active quoted reply
+        let quotedHtml = '';
+        if (currentReply) {
+            quotedHtml = `
+                <div class="quoted-box">
+                    <div class="quoted-author">${escapeHtml(currentReply.sender)}</div>
+                    <div class="quoted-text">${escapeHtml(currentReply.content)}</div>
+                </div>
+            `;
+            activeReplyForBatch = { ...currentReply };
+            cancelReply();
+        }
+
+        // Create user bubble wrapped in bubble-wrap
         const tickId = 'tick-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
-        const userBubble = document.createElement('div');
-        userBubble.className = 'bubble bubble-user';
-        userBubble.innerHTML = `
-            <div>${escapeHtml(text)}</div>
-            <div class="bubble-meta">
-                <span>${getTimeString()}</span>
-                <span class="tick-container" id="${tickId}">${getSingleTickSvg()}</span>
+        const wrap = document.createElement('div');
+        wrap.className = 'bubble-wrap bubble-wrap-user';
+        wrap.innerHTML = `
+            <button type="button" class="reply-trigger-btn" onclick="startReply(this)" title="Balas pesan">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 17 4 12 9 7"></polyline>
+                    <path d="M20 18v-2a4 4 0 0 0-4-4H4"></path>
+                </svg>
+            </button>
+            <div class="bubble bubble-user" ondblclick="startReplyFromBubble(this)">
+                ${quotedHtml}
+                <div class="bubble-text-content">${escapeHtml(text)}</div>
+                <div class="bubble-meta">
+                    <span>${getTimeString()}</span>
+                    <span class="tick-container" id="${tickId}">${getSingleTickSvg()}</span>
+                </div>
             </div>
         `;
-        chatBox.appendChild(userBubble);
+        chatBox.appendChild(wrap);
         unreadTickIds.push(tickId);
 
         // After 350ms, single tick becomes double grey tick (delivered)
@@ -556,14 +775,13 @@
         }, 350);
 
         input.value = '';
-        input.focus(); // Keep input enabled and focused so user can type multiple messages
+        input.focus();
         scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
 
         pendingUserMessages.push(text);
         conversationHistory.push({ role: 'user', content: text });
 
-        // User just sent a message. They might start typing another message!
-        // Pause/reset reading until silence is confirmed:
+        // Pause reading until user silence is confirmed
         clearTimeout(readPhaseTimer);
         isAuraReading = false;
         checkSilenceAndRead();
@@ -585,9 +803,11 @@
         chatBox.appendChild(typingIndicator);
         scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
 
-        // Take snapshot of pending messages to respond to as one holistic thought
+        // Snapshot current batch & reply context
         const batch = [...pendingUserMessages];
+        const replyContextToSend = activeReplyForBatch ? { ...activeReplyForBatch } : null;
         pendingUserMessages.length = 0;
+        activeReplyForBatch = null;
 
         const startTime = Date.now();
         let replies = [];
@@ -601,6 +821,7 @@
                 },
                 body: JSON.stringify({
                     messages: batch,
+                    reply_to: replyContextToSend,
                     history: conversationHistory.slice(-8)
                 })
             });
@@ -626,7 +847,6 @@
         for (let i = 0; i < replies.length; i++) {
             const bubbleText = replies[i];
 
-            // If not first bubble, show typing indicator for the subsequent bubble
             if (i > 0) {
                 chatBox.appendChild(typingIndicator);
                 scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
@@ -634,22 +854,28 @@
                 await sleep(typingDuration);
             }
 
-            // Remove typing indicator before appending bubble
             if (typingIndicator.parentNode) {
                 typingIndicator.parentNode.removeChild(typingIndicator);
             }
 
-            const auraBubble = document.createElement('div');
-            auraBubble.className = 'bubble bubble-aura';
-            auraBubble.innerHTML = `
-                <div>${escapeHtml(bubbleText)}</div>
-                <div class="bubble-meta" style="color: var(--text-muted);">${getTimeString()}</div>
+            const wrap = document.createElement('div');
+            wrap.className = 'bubble-wrap bubble-wrap-aura';
+            wrap.innerHTML = `
+                <div class="bubble bubble-aura" ondblclick="startReplyFromBubble(this)">
+                    <div class="bubble-text-content">${escapeHtml(bubbleText)}</div>
+                    <div class="bubble-meta" style="color: var(--text-muted);">${getTimeString()}</div>
+                </div>
+                <button type="button" class="reply-trigger-btn" onclick="startReply(this)" title="Balas pesan">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 17 4 12 9 7"></polyline>
+                        <path d="M20 18v-2a4 4 0 0 0-4-4H4"></path>
+                    </svg>
+                </button>
             `;
-            chatBox.appendChild(auraBubble);
+            chatBox.appendChild(wrap);
             conversationHistory.push({ role: 'model', content: bubbleText });
             scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
 
-            // Small pause between sending one message and starting to type the next
             if (i < replies.length - 1) {
                 await sleep(450);
             }
@@ -658,7 +884,6 @@
         isAuraProcessing = false;
         setHeaderStatus('Virtual Life Online');
 
-        // If the user sent more messages WHILE AURA was delivering her response, trigger another reading cycle
         if (pendingUserMessages.length > 0) {
             checkSilenceAndRead();
         }

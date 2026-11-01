@@ -53,8 +53,17 @@ class ChatProvider extends ChangeNotifier {
     }
   }
 
-  void sendMessage(String text, {String? referencingMomentId}) {
+  void sendMessage(String text, {String? referencingMomentId, ChatMessageModel? replyTo}) {
     if (text.trim().isEmpty || _conversationId == null) return;
+
+    final metadata = replyTo != null
+        ? {
+            'reply_to': {
+              'sender': replyTo.isFromUser ? 'Kamu' : 'AURA',
+              'content': replyTo.content,
+            }
+          }
+        : null;
 
     // 1. Optimistic immediate user bubble (user can send multiple chats)
     final tempUserMsg = ChatMessageModel(
@@ -64,16 +73,17 @@ class ChatProvider extends ChangeNotifier {
       messageType: 'text',
       content: text.trim(),
       isRead: true,
+      metadata: metadata,
       createdAt: DateTime.now(),
     );
     _messages.add(tempUserMsg);
     _pendingUserMessages.add(text.trim());
     notifyListeners();
 
-    // 2. Reading delay window (3.2 seconds): resets if user sends another message
+    // 2. Reading delay window (5.0 seconds): resets if user sends another message
     if (!_isProcessing) {
       _readTimer?.cancel();
-      _readTimer = Timer(const Duration(milliseconds: 3200), () {
+      _readTimer = Timer(const Duration(milliseconds: 5000), () {
         _processPendingMessages(referencingMomentId: referencingMomentId);
       });
     }

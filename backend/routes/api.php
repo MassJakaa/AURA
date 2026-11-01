@@ -114,6 +114,13 @@ Route::prefix('v1/simulator')->group(function () {
             'recent_conversation' => $recentConversation,
         ];
 
+        $replyTo = $request->input('reply_to');
+        if (is_array($replyTo) && !empty($replyTo['content'])) {
+            $sender = $replyTo['sender'] ?? 'AURA';
+            $quoted = $replyTo['content'];
+            $context['reply_context'] = "Pengguna sedang membalas secara spesifik pesan {$sender} berikut: \"{$quoted}\". Tanggapi balasan pengguna ini dengan mengaitkannya langsung ke topik kutipan tersebut secara alami.";
+        }
+
         $reply = $llm->generateResponse($context, $message);
         $bubbles = method_exists($llm, 'splitIntoBubbles')
             ? $llm->splitIntoBubbles($reply)

@@ -14,6 +14,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  ChatMessageModel? _replyingTo;
 
   @override
   void dispose() {
@@ -83,10 +84,60 @@ class _ChatScreenState extends State<ChatScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         itemCount: chatProv.messages.length,
                         itemBuilder: (context, index) {
-                          return ChatBubble(message: chatProv.messages[index]);
+                          return ChatBubble(
+                            message: chatProv.messages[index],
+                            onReply: (msg) {
+                              setState(() => _replyingTo = msg);
+                            },
+                          );
                         },
                       ),
           ),
+
+          // Reply Preview Banner
+          if (_replyingTo != null)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              color: AppColors.creamBackground,
+              child: Row(
+                children: [
+                  Container(
+                    width: 3.5,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: AppColors.mutedLavender,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Membalas ${_replyingTo!.isFromUser ? 'Kamu' : 'AURA'}',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.mutedLavender,
+                          ),
+                        ),
+                        Text(
+                          _replyingTo!.content,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 16, color: AppColors.textTertiary),
+                    onPressed: () => setState(() => _replyingTo = null),
+                  ),
+                ],
+              ),
+            ),
 
           // Typing Indicator
           if (chatProv.isTyping)
@@ -164,7 +215,8 @@ class _ChatScreenState extends State<ChatScreen> {
                       textInputAction: TextInputAction.send,
                       onSubmitted: (val) {
                         if (val.trim().isNotEmpty) {
-                          chatProv.sendMessage(val.trim());
+                          chatProv.sendMessage(val.trim(), replyTo: _replyingTo);
+                          setState(() => _replyingTo = null);
                           _textController.clear();
                           _scrollToBottom();
                         }
@@ -183,7 +235,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     onPressed: () {
                       final text = _textController.text.trim();
                       if (text.isNotEmpty) {
-                        chatProv.sendMessage(text);
+                        chatProv.sendMessage(text, replyTo: _replyingTo);
+                        setState(() => _replyingTo = null);
                         _textController.clear();
                         _scrollToBottom();
                       }
