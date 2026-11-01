@@ -103,15 +103,27 @@ class ConversationController extends Controller
             // 3. Companion reply generator (incorporates moment context if user replied to moment)
             $replyContent = $this->generateCompanionReply($userMessage->content, $promptContext, $request->input('referencing_moment_id'));
 
-            $companionMessage = Message::create([
-                'conversation_id' => $conversation->id,
-                'sender_type' => 'companion',
-                'sender_id' => $character->id,
-                'message_type' => MessageType::TEXT,
-                'content' => $replyContent,
-                'activity_instance_id' => $currentActivity?->id,
-                'is_read' => false,
-            ]);
+            $bubbles = method_exists($this->llmProvider, 'splitIntoBubbles')
+                ? $this->llmProvider->splitIntoBubbles($replyContent)
+                : preg_split('/\|\|\||\n\s*\n/', $replyContent, -1, PREG_SPLIT_NO_EMPTY);
+            $bubbles = array_values(array_map('trim', array_filter($bubbles)));
+            if (empty($bubbles)) {
+                $bubbles = [trim($replyContent)];
+            }
+
+            $companionMessages = [];
+            foreach ($bubbles as $idx => $bubbleText) {
+                $companionMessages[] = Message::create([
+                    'conversation_id' => $conversation->id,
+                    'sender_type' => 'companion',
+                    'sender_id' => $character->id,
+                    'message_type' => MessageType::TEXT,
+                    'content' => $bubbleText,
+                    'activity_instance_id' => $currentActivity?->id,
+                    'is_read' => false,
+                    'created_at' => Carbon::now('UTC')->addSeconds($idx),
+                ]);
+            }
 
             $conversation->update(['last_message_at' => Carbon::now('UTC')]);
 
@@ -120,7 +132,8 @@ class ConversationController extends Controller
                 'message' => 'Message sent successfully',
                 'data' => [
                     'user_message' => new MessageResource($userMessage),
-                    'companion_reply' => new MessageResource($companionMessage),
+                    'companion_reply' => new MessageResource($companionMessages[0]),
+                    'companion_replies' => MessageResource::collection(collect($companionMessages)),
                 ],
                 'meta' => [],
             ]);

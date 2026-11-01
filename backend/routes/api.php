@@ -96,10 +96,18 @@ Route::prefix('v1/simulator')->group(function () {
         ];
 
         $reply = $llm->generateResponse($context, $message);
+        $bubbles = method_exists($llm, 'splitIntoBubbles')
+            ? $llm->splitIntoBubbles($reply)
+            : preg_split('/\|\|\||\n\s*\n/', $reply, -1, PREG_SPLIT_NO_EMPTY);
+        $bubbles = array_values(array_map('trim', array_filter($bubbles)));
+        if (empty($bubbles)) {
+            $bubbles = [trim($reply)];
+        }
 
         return response()->json([
             'success' => true,
-            'reply' => $reply,
+            'reply' => implode("\n\n", $bubbles),
+            'replies' => $bubbles,
             'current_activity' => $activity?->name,
             'location' => $activity?->location?->name,
         ]);

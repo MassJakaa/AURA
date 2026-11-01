@@ -88,23 +88,63 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
           ),
 
-          // Sending Indicator
-          if (chatProv.isSending)
+          // Typing Indicator
+          if (chatProv.isTyping)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-              child: Row(
-                children: const [
-                  SizedBox(
-                    width: 12,
-                    height: 12,
-                    child: CircularProgressIndicator(strokeWidth: 1.5, color: AppColors.mutedLavender),
+              padding: const EdgeInsets.only(left: 16, bottom: 8),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.borderLight),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.02),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
-                  SizedBox(width: 8),
-                  Text(
-                    'AURA sedang merangkai balasan...',
-                    style: TextStyle(fontSize: 12, color: AppColors.textTertiary),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: const BoxDecoration(
+                          color: AppColors.mutedLavender,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: AppColors.mutedLavender.withOpacity(0.65),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: AppColors.mutedLavender.withOpacity(0.35),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'AURA sedang mengetik...',
+                        style: TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
 

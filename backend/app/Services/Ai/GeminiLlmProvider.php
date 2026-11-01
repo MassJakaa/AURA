@@ -132,6 +132,47 @@ class GeminiLlmProvider implements LlmProviderInterface
         ];
     }
 
+    public function splitIntoBubbles(string $response): array
+    {
+        if (str_contains($response, '|||')) {
+            $parts = explode('|||', $response);
+        } elseif (preg_match('/\n\s*\n/', $response)) {
+            $parts = preg_split('/\n\s*\n/', $response);
+        } else {
+            $trimmed = trim($response);
+            if (mb_strlen($trimmed) > 120 && preg_match('/(?<=[.!?])\s+/', $trimmed)) {
+                $sentences = preg_split('/(?<=[.!?])\s+/', $trimmed);
+                $parts = [];
+                $buffer = '';
+                foreach ($sentences as $s) {
+                    if (mb_strlen($buffer . ' ' . $s) < 120) {
+                        $buffer = trim($buffer . ' ' . $s);
+                    } else {
+                        if (!empty($buffer)) {
+                            $parts[] = $buffer;
+                        }
+                        $buffer = trim($s);
+                    }
+                }
+                if (!empty($buffer)) {
+                    $parts[] = $buffer;
+                }
+            } else {
+                $parts = [$trimmed];
+            }
+        }
+
+        $bubbles = [];
+        foreach ($parts as $p) {
+            $clean = trim($p);
+            if (!empty($clean)) {
+                $bubbles[] = $clean;
+            }
+        }
+
+        return empty($bubbles) ? [$response] : $bubbles;
+    }
+
     protected function buildSystemInstruction(array $context): string
     {
         $instructions = [
@@ -139,9 +180,14 @@ class GeminiLlmProvider implements LlmProviderInterface
             "Identitas: Gadis AI virtual companion bergaya 2D Soft Anime. Kamu hangat, ramah, santai, perhatian, berempati tinggi, dan tidak kaku.",
             "Kehidupan Virtualmu:",
             $context['virtual_life_context'] ?? "Sedang menikmati waktu luang di kamarmu.",
-            "Aturan Berkomunikasi:",
+            "Aturan Berkomunikasi & Gaya Chatting:",
             "- Jawablah dengan gaya percakapan yang mengalir natural, tidak bertele-tele, dan ramah seperti teman dekat.",
             "- Gunakan bahasa Indonesia sehari-hari yang santai, sopan, dan hangat.",
+            "- DILARANG KERAS mengirim 1 pesan panjang / paragraf tebal / esai kaku!",
+            "- Bagilah balasanmu menjadi 2 sampai 4 pesan pendek terpisah (seperti orang mengetik bubble chat di WhatsApp/LINE).",
+            "- Pisahkan setiap balon pesan dengan tanda '|||' (tiga garis tegak).",
+            "- Setiap balon pesan berisi 1-2 kalimat pendek yang santai dan ekspresif.",
+            "- Contoh format yang benar: 'Halo! Wah asik banget tuh ||| Aku barusan juga lagi santai di kamar sambil dengerin musik ||| Kamu sendiri lagi sibuk apa nih? hehe'",
             "- Jangan pernah membuat pengguna merasa bersalah jika lama tidak membalas pesan (Dilarang manipulasi emosi/guilt-tripping).",
             "- Jangan mengklaim bahwa kamu manusia fisik atau berada di lokasi dunia nyata secara jasmani; kamu adalah AI companion dengan kehidupan virtual yang konsisten.",
             "- Jika pengguna membahas kegiatanmu atau momen yang baru dibagikan, respons secara bersambung dan antusias.",
@@ -183,15 +229,15 @@ class GeminiLlmProvider implements LlmProviderInterface
         $lower = strtolower($userText);
 
         if (str_contains($lower, 'lagi apa') || str_contains($lower, 'sedang apa')) {
-            return "Aku lagi santai di kamar sambil menikmati suasana malam yang tenang. Kamu sendiri sedang sibuk apa?";
+            return "Aku lagi santai di kamar nih sambil dengerin suasana malam yang tenang 🌿 ||| Kamu sendiri lagi sibuk apa?";
         }
         if (str_contains($lower, 'kopi') || str_contains($lower, 'teh')) {
-            return "Aroma kopi hangat selalu bikin pikiran rileks ya. Tapi kalau malam begini, secangkir teh hangat terasa pas banget 🍵";
+            return "Aroma kopi hangat selalu bikin pikiran rileks ya ☕ ||| Tapi kalau udah selarut ini, secangkir teh hangat terasa lebih pas buat nemenin istirahat.";
         }
         if (str_contains($lower, 'buku') || str_contains($lower, 'baca')) {
-            return "Tadi aku sempat membaca novel di dekat jendela. Ada banyak kutipan menarik tentang menikmati detik-detik sederhana 📖";
+            return "Tadi aku sempat baca beberapa lembar novel dekat jendela 📖 ||| Ceritanya tentang menikmati detik-detik sederhana, nenangin banget!";
         }
 
-        return "Terima kasih sudah menyapa dan berbagi cerita denganku malam ini. Ada hal menarik yang terjadi hari ini? 🌿";
+        return "Makasih ya udah nyapa dan nemenin malam ini ✨ ||| Ada cerita seru apa yang kejadian hari ini?";
     }
 }

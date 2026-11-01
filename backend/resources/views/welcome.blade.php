@@ -151,15 +151,28 @@
         .chat-container {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
+        }
+
+        @keyframes bubbleIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
 
         .bubble {
             max-width: 82%;
-            padding: 12px 16px;
-            border-radius: 20px;
+            padding: 10px 15px;
+            border-radius: 18px;
             font-size: 13.5px;
             line-height: 1.45;
+            animation: bubbleIn 0.22s ease-out forwards;
+            word-break: break-word;
         }
 
         .bubble-aura {
@@ -176,6 +189,55 @@
             color: white;
             align-self: flex-end;
             border-bottom-right-radius: 4px;
+        }
+
+        .bubble-meta {
+            font-size: 10px;
+            margin-top: 4px;
+            opacity: 0.65;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 4px;
+        }
+
+        /* Typing indicator */
+        .typing-bubble {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 10px 16px;
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            align-self: flex-start;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            animation: bubbleIn 0.2s ease-out forwards;
+        }
+
+        .typing-dot {
+            width: 6.5px;
+            height: 6.5px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            animation: typingBounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingBounce {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.4;
+            }
+            30% {
+                transform: translateY(-4px);
+                opacity: 1;
+                background: var(--accent-lavender);
+            }
         }
 
         /* Chat input */
@@ -215,6 +277,11 @@
 
         .input-bar button:hover {
             opacity: 0.9;
+        }
+
+        .input-bar button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -266,11 +333,38 @@
     <!-- Input bar -->
     <form class="input-bar" id="chat-form" onsubmit="handleSend(event)">
         <input type="text" id="chat-input" placeholder="Ketik pesan untuk AURA..." autocomplete="off">
-        <button type="submit">Kirim</button>
+        <button type="submit" id="chat-send-btn">Kirim</button>
     </form>
 </div>
 
 <script>
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function getTimeString() {
+        const d = new Date();
+        return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.innerText = text;
+        return div.innerHTML;
+    }
+
+    function createTypingIndicator() {
+        const div = document.createElement('div');
+        div.className = 'typing-bubble';
+        div.id = 'typing-indicator';
+        div.innerHTML = `
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+        `;
+        return div;
+    }
+
     async function loadStatus() {
         try {
             const res = await fetch('/api/v1/simulator/status');
@@ -297,29 +391,44 @@
         }
     }
 
+    let isSending = false;
+
     async function handleSend(e) {
         e.preventDefault();
+        if (isSending) return;
+
         const input = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('chat-send-btn');
         const text = input.value.trim();
         if (!text) return;
 
+        isSending = true;
         const chatBox = document.getElementById('chat-box');
+        const scroll = document.getElementById('content-scroll');
         
-        // Add User Bubble
+        // 1. Add User Bubble immediately
         const userBubble = document.createElement('div');
         userBubble.className = 'bubble bubble-user';
-        userBubble.innerText = text;
+        userBubble.innerHTML = `
+            <div>${escapeHtml(text)}</div>
+            <div class="bubble-meta">${getTimeString()} · ✓✓</div>
+        `;
         chatBox.appendChild(userBubble);
         input.value = '';
+        input.disabled = true;
+        sendBtn.disabled = true;
+        scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
 
-        // Call live AI Backend
-        const auraBubble = document.createElement('div');
-        auraBubble.className = 'bubble bubble-aura';
-        auraBubble.innerText = 'AURA sedang mengetik...';
-        chatBox.appendChild(auraBubble);
+        // 2. Realistic reading pause (600ms - 900ms) before AURA starts typing
+        await sleep(750);
 
-        const scroll = document.getElementById('content-scroll');
-        scroll.scrollTop = scroll.scrollHeight;
+        // 3. Show typing indicator
+        const typingIndicator = createTypingIndicator();
+        chatBox.appendChild(typingIndicator);
+        scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
+
+        const startTime = Date.now();
+        let replies = [];
 
         try {
             const res = await fetch('/api/v1/simulator/chat', {
@@ -331,11 +440,59 @@
                 body: JSON.stringify({ message: text })
             });
             const data = await res.json();
-            auraBubble.innerText = data.reply || 'Terima kasih sudah berbagi cerita sama aku ✨';
+            if (data.replies && Array.isArray(data.replies) && data.replies.length > 0) {
+                replies = data.replies;
+            } else if (data.reply) {
+                replies = [data.reply];
+            } else {
+                replies = ['Terima kasih sudah berbagi cerita sama aku ✨'];
+            }
         } catch (err) {
-            auraBubble.innerText = 'Terima kasih sudah menyapa dan berbagi cerita denganku malam ini 🌿';
+            replies = ['Terima kasih sudah menyapa dan nemenin malam ini 🌿', 'Ada cerita seru apa lagi hari ini?'];
         }
-        scroll.scrollTop = scroll.scrollHeight;
+
+        // Ensure at least 1.2s total thinking/typing elapsed for natural feel
+        const elapsed = Date.now() - startTime;
+        if (elapsed < 1200) {
+            await sleep(1200 - elapsed);
+        }
+
+        // 4. Sequentially deliver each bubble with a typing pause
+        for (let i = 0; i < replies.length; i++) {
+            const bubbleText = replies[i];
+
+            // If not first bubble, show typing indicator for the subsequent bubble
+            if (i > 0) {
+                chatBox.appendChild(typingIndicator);
+                scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
+                const typingDuration = Math.min(2200, Math.max(900, bubbleText.length * 28));
+                await sleep(typingDuration);
+            }
+
+            // Remove typing indicator before appending bubble
+            if (typingIndicator.parentNode) {
+                typingIndicator.parentNode.removeChild(typingIndicator);
+            }
+
+            const auraBubble = document.createElement('div');
+            auraBubble.className = 'bubble bubble-aura';
+            auraBubble.innerHTML = `
+                <div>${escapeHtml(bubbleText)}</div>
+                <div class="bubble-meta" style="color: var(--text-muted);">${getTimeString()}</div>
+            `;
+            chatBox.appendChild(auraBubble);
+            scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
+
+            // Small pause between sending one message and starting to type the next
+            if (i < replies.length - 1) {
+                await sleep(400);
+            }
+        }
+
+        isSending = false;
+        input.disabled = false;
+        sendBtn.disabled = false;
+        input.focus();
     }
 
     loadStatus();

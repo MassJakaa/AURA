@@ -112,7 +112,7 @@ class AuraApiService {
     return [];
   }
 
-  Future<ChatMessageModel?> sendMessage(
+  Future<List<ChatMessageModel>> sendMessages(
     String conversationId,
     String content, {
     String? referencingMomentId,
@@ -124,9 +124,29 @@ class AuraApiService {
         if (referencingMomentId != null) 'referencing_moment_id': referencingMomentId,
       },
     );
-    if (res.success && res.data != null && res.data['companion_reply'] != null) {
-      return ChatMessageModel.fromJson(res.data['companion_reply'] as Map<String, dynamic>);
+    if (res.success && res.data != null) {
+      if (res.data['companion_replies'] != null && res.data['companion_replies'] is List) {
+        return (res.data['companion_replies'] as List)
+            .map((item) => ChatMessageModel.fromJson(item as Map<String, dynamic>))
+            .toList();
+      }
+      if (res.data['companion_reply'] != null) {
+        return [ChatMessageModel.fromJson(res.data['companion_reply'] as Map<String, dynamic>)];
+      }
     }
-    return null;
+    return [];
+  }
+
+  Future<ChatMessageModel?> sendMessage(
+    String conversationId,
+    String content, {
+    String? referencingMomentId,
+  }) async {
+    final list = await sendMessages(
+      conversationId,
+      content,
+      referencingMomentId: referencingMomentId,
+    );
+    return list.isNotEmpty ? list.first : null;
   }
 }
