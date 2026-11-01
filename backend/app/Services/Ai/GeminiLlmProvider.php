@@ -254,7 +254,11 @@ class GeminiLlmProvider implements LlmProviderInterface
             $instructions[] = "- Cukup buat 1 sampai 2 balon chat pendek saja.";
         }
 
-        return implode("\n", $instructions);
+        // Training corpus & few-shot exemplars of real girl chat on WhatsApp
+        $isProactive = !empty($context['is_proactive']);
+        $instructions[] = GirlChatExemplars::getFewShotPromptSection($currentMood, $isProactive);
+
+        return implode("\n\n", $instructions);
     }
 
     protected function buildContents(array $context, string $userMessage): array
