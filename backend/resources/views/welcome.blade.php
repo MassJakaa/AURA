@@ -241,15 +241,6 @@
 
     <!-- Scrollable content -->
     <div class="content-scroll" id="content-scroll">
-        <!-- Master Sheet Showcase -->
-        <div style="background: white; border-radius: 20px; padding: 14px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <span style="font-size: 11px; font-weight: 700; color: #52B788; background: #E8F7EE; padding: 3px 8px; border-radius: 8px;">✓ Master Sheet Approved (v1.1.0)</span>
-                <span style="font-size: 11px; color: var(--text-muted);">2D Soft Anime</span>
-            </div>
-            <img src="/assets/characters/aura_master_reference.jpg" style="width: 100%; border-radius: 12px; display: block;" alt="AURA Master Character Sheet">
-        </div>
-
         <!-- Live Status Widget -->
         <div class="status-card" id="status-box">
             <span class="badge-live" id="badge-status">Sedang Beraktivitas</span>
