@@ -194,11 +194,36 @@
         .bubble-meta {
             font-size: 10px;
             margin-top: 4px;
-            opacity: 0.65;
+            opacity: 0.8;
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            gap: 4px;
+            gap: 3px;
+        }
+
+        /* WhatsApp checkmarks */
+        .tick-container {
+            display: inline-flex;
+            align-items: center;
+            margin-left: 2px;
+        }
+
+        .tick-svg {
+            display: inline-block;
+            vertical-align: middle;
+            color: rgba(255, 255, 255, 0.65);
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tick-blue {
+            color: #53BDEB !important; /* WhatsApp iconic cyan blue tick */
+            animation: tickPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes tickPop {
+            0% { transform: scale(0.75); }
+            50% { transform: scale(1.35); }
+            100% { transform: scale(1); }
         }
 
         /* Typing indicator */
@@ -353,6 +378,19 @@
         return div.innerHTML;
     }
 
+    function getSingleTickSvg() {
+        return `<svg class="tick-svg" viewBox="0 0 16 11" width="13" height="9">
+            <path d="M1 6 L5 10 L15 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>`;
+    }
+
+    function getDoubleTickSvg(isBlue = false) {
+        return `<svg class="tick-svg ${isBlue ? 'tick-blue' : ''}" viewBox="0 0 19 11" width="15" height="9">
+            <path d="M1 6 L5 10 L15 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5 6 L9 10 L19 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>`;
+    }
+
     function createTypingIndicator() {
         const div = document.createElement('div');
         div.className = 'typing-bubble';
@@ -363,6 +401,100 @@
             <span class="typing-dot"></span>
         `;
         return div;
+    }
+
+    const pendingUserMessages = [];
+    const conversationHistory = [];
+    const unreadTickIds = [];
+    let isAuraProcessing = false;
+    let isAuraReading = false;
+    let userIsTyping = false;
+    let userTypingTimer = null;
+    let silenceTimer = null;
+    let readPhaseTimer = null;
+
+    function setHeaderStatus(text, isTyping = false) {
+        const textEl = document.getElementById('header-status-text');
+        const dotEl = document.getElementById('header-status-dot');
+        if (textEl) textEl.innerText = text;
+        if (dotEl) {
+            dotEl.style.backgroundColor = isTyping ? 'var(--accent-lavender)' : 'var(--accent-sage)';
+        }
+    }
+
+    function markAllTicksAsRead() {
+        unreadTickIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.dataset.read = "true";
+                el.innerHTML = getDoubleTickSvg(true);
+            }
+        });
+        unreadTickIds.length = 0;
+    }
+
+    // Listener while user is typing in the input box
+    function handleInputActivity() {
+        const input = document.getElementById('chat-input');
+        const hasText = input.value.trim().length > 0;
+
+        userIsTyping = true;
+        clearTimeout(userTypingTimer);
+        clearTimeout(silenceTimer);
+
+        if (hasText) {
+            // User is actively typing! Hold off AURA from reading or replying:
+            if (!isAuraProcessing) {
+                if (isAuraReading) {
+                    clearTimeout(readPhaseTimer);
+                    isAuraReading = false;
+                }
+                setHeaderStatus('Virtual Life Online');
+            }
+        }
+
+        userTypingTimer = setTimeout(() => {
+            userIsTyping = false;
+            // When user stops typing, check if silence is reached to start reading
+            if (pendingUserMessages.length > 0 && !isAuraProcessing && !isAuraReading) {
+                checkSilenceAndRead();
+            }
+        }, 1100);
+    }
+
+    function checkSilenceAndRead() {
+        clearTimeout(silenceTimer);
+        const input = document.getElementById('chat-input');
+        if (input.value.trim().length > 0 || userIsTyping) {
+            return; // User is still typing something
+        }
+
+        // Wait 1200ms of user silence before AURA starts reading
+        silenceTimer = setTimeout(() => {
+            const currentVal = document.getElementById('chat-input').value.trim();
+            if (currentVal.length === 0 && !userIsTyping && pendingUserMessages.length > 0 && !isAuraProcessing && !isAuraReading) {
+                startReadingPhase();
+            }
+        }, 1200);
+    }
+
+    function startReadingPhase() {
+        if (isAuraProcessing || isAuraReading || pendingUserMessages.length === 0) return;
+
+        isAuraReading = true;
+
+        // WhatsApp read checkmark animation: turns blue with pop effect!
+        markAllTicksAsRead();
+
+        // Header status: "Membaca pesan..."
+        setHeaderStatus('Membaca pesan...');
+
+        // Extended read duration (3.2 seconds)
+        clearTimeout(readPhaseTimer);
+        readPhaseTimer = setTimeout(() => {
+            isAuraReading = false;
+            triggerAuraResponse();
+        }, 3200);
     }
 
     async function loadStatus() {
@@ -391,20 +523,6 @@
         }
     }
 
-    const pendingUserMessages = [];
-    const conversationHistory = [];
-    let readTimeout = null;
-    let isAuraProcessing = false;
-
-    function setHeaderStatus(text, isTyping = false) {
-        const textEl = document.getElementById('header-status-text');
-        const dotEl = document.getElementById('header-status-dot');
-        if (textEl) textEl.innerText = text;
-        if (dotEl) {
-            dotEl.style.backgroundColor = isTyping ? 'var(--accent-lavender)' : 'var(--accent-sage)';
-        }
-    }
-
     async function handleSend(e) {
         e.preventDefault();
 
@@ -415,43 +533,48 @@
         const chatBox = document.getElementById('chat-box');
         const scroll = document.getElementById('content-scroll');
 
-        // 1. Immediately render User Bubble
+        // Create user bubble with WhatsApp tick
+        const tickId = 'tick-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
         const userBubble = document.createElement('div');
         userBubble.className = 'bubble bubble-user';
         userBubble.innerHTML = `
             <div>${escapeHtml(text)}</div>
-            <div class="bubble-meta">${getTimeString()} · ✓✓</div>
+            <div class="bubble-meta">
+                <span>${getTimeString()}</span>
+                <span class="tick-container" id="${tickId}">${getSingleTickSvg()}</span>
+            </div>
         `;
         chatBox.appendChild(userBubble);
+        unreadTickIds.push(tickId);
+
+        // After 350ms, single tick becomes double grey tick (delivered)
+        setTimeout(() => {
+            const el = document.getElementById(tickId);
+            if (el && !el.dataset.read) {
+                el.innerHTML = getDoubleTickSvg(false);
+            }
+        }, 350);
+
         input.value = '';
         input.focus(); // Keep input enabled and focused so user can type multiple messages
         scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
 
-        // Enqueue message
         pendingUserMessages.push(text);
         conversationHistory.push({ role: 'user', content: text });
 
-        // If AURA is not actively rendering bubbles, manage the reading window
-        if (!isAuraProcessing) {
-            setHeaderStatus('Membaca pesan...');
-
-            // Extend/reset reading timer when user sends consecutive messages
-            if (readTimeout) {
-                clearTimeout(readTimeout);
-            }
-
-            // Longer read delay: 3.2 seconds
-            readTimeout = setTimeout(() => {
-                triggerAuraResponse();
-            }, 3200);
-        }
+        // User just sent a message. They might start typing another message!
+        // Pause/reset reading until silence is confirmed:
+        clearTimeout(readPhaseTimer);
+        isAuraReading = false;
+        checkSilenceAndRead();
     }
 
     async function triggerAuraResponse() {
         if (isAuraProcessing || pendingUserMessages.length === 0) return;
 
         isAuraProcessing = true;
-        readTimeout = null;
+        isAuraReading = false;
+        clearTimeout(readPhaseTimer);
         setHeaderStatus('AURA sedang mengetik...', true);
 
         const chatBox = document.getElementById('chat-box');
@@ -537,12 +660,13 @@
 
         // If the user sent more messages WHILE AURA was delivering her response, trigger another reading cycle
         if (pendingUserMessages.length > 0) {
-            setHeaderStatus('Membaca pesan...');
-            readTimeout = setTimeout(() => {
-                triggerAuraResponse();
-            }, 2500);
+            checkSilenceAndRead();
         }
     }
+
+    const inputEl = document.getElementById('chat-input');
+    inputEl.addEventListener('input', handleInputActivity);
+    inputEl.addEventListener('keydown', handleInputActivity);
 
     loadStatus();
     setInterval(loadStatus, 30000);
