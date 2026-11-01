@@ -53,12 +53,15 @@
         }
 
         .phone-header {
-            padding: 16px 24px 12px;
+            padding: 12px 20px 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             border-bottom: 1px solid var(--border);
             background: #FFFEFD;
+            position: sticky;
+            top: 0;
+            z-index: 20;
         }
 
         .aura-title {
@@ -311,18 +314,19 @@
         .mood-pill {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 4px 11px;
-            border-radius: 20px;
+            gap: 4px;
+            padding: 2.5px 8px;
+            border-radius: 12px;
             background: #F4EFE6;
             border: 1px solid var(--border);
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
             color: var(--text-main);
             cursor: default;
             user-select: none;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            white-space: nowrap;
         }
 
         .mood-pill.pop {
@@ -331,7 +335,7 @@
 
         @keyframes moodPop {
             0% { transform: scale(0.92); opacity: 0.85; }
-            50% { transform: scale(1.12); }
+            50% { transform: scale(1.1); }
             100% { transform: scale(1); opacity: 1; }
         }
 
@@ -497,8 +501,14 @@
                 </div>
             </div>
         </div>
-        <div id="local-clock" style="font-size: 12px; font-weight: 600; color: var(--text-sub);">
-            --:-- WIB
+        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px;">
+            <div id="local-clock" style="font-size: 11.5px; font-weight: 600; color: var(--text-sub);">
+                --:-- WIB
+            </div>
+            <div class="mood-pill" id="aura-mood-pill" title="Suasana hati AURA saat ini">
+                <span id="aura-mood-emoji">✨</span>
+                <span id="aura-mood-label">Tenang & Santai</span>
+            </div>
         </div>
     </div>
 
@@ -508,10 +518,6 @@
         <div class="status-card" id="status-box">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                 <span class="badge-live" id="badge-status">Sedang Beraktivitas</span>
-                <div class="mood-pill" id="aura-mood-pill" title="Emosi alami AURA saat ini">
-                    <span id="aura-mood-emoji">✨</span>
-                    <span id="aura-mood-label">Tenang & Santai</span>
-                </div>
             </div>
             <h3 class="act-name" id="act-title">Memuat status AURA...</h3>
             <div class="act-location">
@@ -520,7 +526,6 @@
             <p id="act-desc" style="font-size: 12.5px; color: var(--text-sub); line-height: 1.4; margin-bottom: 12px;"></p>
             <div class="time-badge">
                 <span id="act-next">Rencana selanjutnya: ...</span>
-                <span style="font-size: 11px; color: var(--text-sub); font-weight: 500;">Emosi Alami Aktif ✨</span>
             </div>
         </div>
 
@@ -528,7 +533,7 @@
         <div class="chat-container" id="chat-box">
             <div class="bubble-wrap bubble-wrap-aura">
                 <div class="bubble bubble-aura" ondblclick="startReplyFromBubble(this)">
-                    <div class="bubble-text-content">Halo! Senang bisa menyapamu malam ini. Aku sedang berada di kamarku bersiap istirahat. Ada cerita apa hari ini? 🌿</div>
+                    <div class="bubble-text-content">Hai! Aku lagi santai di kamar nih mau siap-siap istirahat. Hari ini gimana ceritanya? Ada yang seru gak? 🌿</div>
                     <div class="bubble-meta" style="color: var(--text-muted);">23:50</div>
                 </div>
                 <button type="button" class="reply-trigger-btn" onclick="startReply(this)" title="Balas pesan">
