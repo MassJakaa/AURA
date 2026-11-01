@@ -22,7 +22,8 @@ class ConversationController extends Controller
     public function __construct(
         protected CharacterService $characterService,
         protected ActivityEngine $activityEngine,
-        protected PromptContextBuilder $promptBuilder
+        protected PromptContextBuilder $promptBuilder,
+        protected \App\Domain\Ai\LlmProviderInterface $llmProvider
     ) {}
 
     public function index(Request $request): JsonResponse
@@ -128,28 +129,6 @@ class ConversationController extends Controller
 
     protected function generateCompanionReply(string $userText, array $context, ?string $momentId): string
     {
-        // Deterministic contextual response based on conversation topic and current activity
-        $lower = strtolower($userText);
-
-        if ($momentId) {
-            $moment = Moment::find($momentId);
-            if ($moment) {
-                return "Iya, tadi aku sempat kepikiran buat cerita itu ke kamu. Menurutmu bagian mana yang paling menarik?";
-            }
-        }
-
-        if (str_contains($lower, 'lagi apa') || str_contains($lower, 'sedang apa')) {
-            return "Aku lagi santai sejenak sambil menikmati waktu. Suasananya tenang banget hari ini. Kamu sendiri lagi sibuk apa?";
-        }
-
-        if (str_contains($lower, 'kopi') || str_contains($lower, 'teh')) {
-            return "Aroma kopi hangat memang selalu bikin rileks ya. Kamu lebih suka kopi hitam atau yang pakai susu?";
-        }
-
-        if (str_contains($lower, 'buku') || str_contains($lower, 'baca')) {
-            return "Membaca buku di dekat jendela selalu jadi caraku buat melepas penat. Kamu ada buku favorit yang sering dibaca ulang?";
-        }
-
-        return "Terima kasih sudah berbagi cerita sama aku. Mendengar kabarmu selalu bikin hariku terasa lebih menyenangkan 🌿";
+        return $this->llmProvider->generateResponse($context, $userText);
     }
 }

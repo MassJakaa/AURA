@@ -10,6 +10,10 @@ use Carbon\Carbon;
 
 class NarrativeService
 {
+    public function __construct(
+        protected ?\App\Domain\Ai\LlmProviderInterface $llmProvider = null
+    ) {}
+
     /**
      * Build user-facing narrative for a moment.
      */
@@ -18,9 +22,22 @@ class NarrativeService
         ActivityInstance $instance,
         ?User $user = null
     ): array {
+        $locationName = $instance->location?->name ?? 'kamar';
+
+        if ($this->llmProvider) {
+            $aiNarrative = $this->llmProvider->generateMomentNarrative(
+                $instance->name,
+                $locationName,
+                $instance->category->value
+            );
+
+            if (!empty($aiNarrative['title']) && !empty($aiNarrative['narrative'])) {
+                return $aiNarrative;
+            }
+        }
+
         $pref = $user?->companionPreference;
         $style = $pref?->communication_style ?? 'warm_natural';
-        $locationName = $instance->location?->name ?? 'kamar';
 
         // Select narrative based on category and style
         $narrativeData = match($instance->category->value) {

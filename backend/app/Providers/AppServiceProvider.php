@@ -15,6 +15,11 @@ class AppServiceProvider extends ServiceProvider
             \App\Domain\Visual\ImageGenerationProviderInterface::class,
             \App\Services\Visual\MockImageGenerationProvider::class
         );
+
+        $this->app->bind(
+            \App\Domain\Ai\LlmProviderInterface::class,
+            \App\Services\Ai\GeminiLlmProvider::class
+        );
     }
 
     /**

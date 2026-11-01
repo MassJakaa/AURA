@@ -72,3 +72,36 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::get('/conversations/{id}/messages', [ConversationController::class, 'messages']);
     Route::post('/conversations/{id}/messages', [ConversationController::class, 'sendMessage']);
 });
+
+// Dedicated Web Simulator endpoints (for direct browser preview without login)
+Route::prefix('v1/simulator')->group(function () {
+    Route::get('/status', [LifeController::class, 'status']);
+    Route::post('/chat', function (Request $request, \App\Services\Character\CharacterService $charService, \App\Services\Activity\ActivityEngine $actEngine, \App\Domain\Ai\LlmProviderInterface $llm) {
+        $message = $request->input('message', '');
+        if (empty($message)) {
+            return response()->json(['success' => false, 'reply' => 'Pesan tidak boleh kosong.']);
+        }
+
+        $character = $charService->getPrimaryCharacter();
+        $activity = $actEngine->getCurrentActivity($character);
+
+        $context = [
+            'virtual_life_context' => $activity
+                ? "AURA saat ini sedang: {$activity->name} di {$activity->location?->name}. Mood: {$activity->mood_presentation}."
+                : "AURA sedang santai di kamarnya.",
+            'user_memories' => [
+                "- Pengguna suka topik santai, buku, dan kopi.",
+            ],
+            'recent_conversation' => [],
+        ];
+
+        $reply = $llm->generateResponse($context, $message);
+
+        return response()->json([
+            'success' => true,
+            'reply' => $reply,
+            'current_activity' => $activity?->name,
+            'location' => $activity?->location?->name,
+        ]);
+    });
+});

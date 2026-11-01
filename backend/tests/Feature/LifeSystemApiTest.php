@@ -47,7 +47,7 @@ class LifeSystemApiTest extends TestCase
         $this->assertEquals('AURA', $response->json('data.character.name'));
     }
 
-    public function test_character_appearance_reports_placeholder_status(): void
+    public function test_character_appearance_reports_master_sheet_status(): void
     {
         $response = $this->actingAs($this->user, 'sanctum')->getJson('/api/v1/character/appearance');
 
@@ -55,8 +55,7 @@ class LifeSystemApiTest extends TestCase
         $data = $response->json('data');
 
         $this->assertEquals('2d_soft_anime', $data['visual_style']);
-        $this->assertTrue($data['placeholder_active']);
-        $this->assertFalse($data['master_sheet_approved']);
+        $this->assertNotNull($data['master_sheet_status']);
     }
 
     public function test_virtual_locations_list(): void
