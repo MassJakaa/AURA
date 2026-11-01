@@ -1,0 +1,13 @@
+# Root Git Ignore
+.idea/
+.vscode/
+*.tmp
+*.log
+backend/vendor/
+backend/.env
+backend/database/*.sqlite
+backend/database/*.sqlite-journal
+mobile/.dart_tool/
+mobile/build/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
