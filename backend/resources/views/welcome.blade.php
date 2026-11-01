@@ -1202,12 +1202,21 @@
         isAuraProcessing = false;
         setHeaderStatus('Virtual Life Online');
     }
-    }
 
     const inputEl = document.getElementById('chat-input');
     inputEl.addEventListener('input', handleInputActivity);
     inputEl.addEventListener('keydown', handleInputActivity);
 
+    function updateClockNow() {
+        const d = new Date();
+        const clockEl = document.getElementById('local-clock');
+        if (clockEl) {
+            clockEl.innerText = d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0') + ' WIB';
+        }
+    }
+
+    updateClockNow();
+    setInterval(updateClockNow, 10000);
     loadStatus();
     setInterval(loadStatus, 30000);
 </script>
