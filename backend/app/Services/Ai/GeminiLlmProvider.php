@@ -245,6 +245,14 @@ class GeminiLlmProvider implements LlmProviderInterface
             $instructions[] = "Informasi Balasan Pesan Pengguna:\n" . $context['reply_context'];
         }
 
+        if (!empty($context['is_proactive'])) {
+            $instructions[] = "KONTEKS INISIATIF CHAT DULUAN:";
+            $instructions[] = "- Pengguna sedang diam dan belum mengirim pesan selama beberapa waktu.";
+            $instructions[] = "- Karena mood kamu saat ini sedang excited ({$currentMood->label()}), kamu iseng / penasaran dan berinisiatif memulai chat duluan untuk memecah keheningan atau menyapa kembali.";
+            $instructions[] = "- Bicaralah santai seperti cewek pada umumnya saat nge-chat temennya yang tiba-tiba hening (misal: 'Eh kok ngilang sih? wkwk', 'Lagi sibuk yaa?', 'Btw tadi aku baru kepikiran sesuatu...', 'Masih di situ kan? 🙈').";
+            $instructions[] = "- Cukup buat 1 sampai 2 balon chat pendek saja.";
+        }
+
         return implode("\n", $instructions);
     }
 
@@ -263,11 +271,19 @@ class GeminiLlmProvider implements LlmProviderInterface
             }
         }
 
-        // Add current user message
-        $contents[] = [
-            'role' => 'user',
-            'parts' => [['text' => $userMessage]],
-        ];
+        // Add current user message or proactive trigger
+        if (!empty($context['is_proactive'])) {
+            $currentMood = \App\Enums\CharacterMood::fromString($context['current_mood'] ?? null);
+            $contents[] = [
+                'role' => 'user',
+                'parts' => [['text' => "[Sistem: Pengguna hening sejenak tanpa input. Karena mood AURA sedang {$currentMood->label()}, AURA berinisiatif memulai chat duluan dengan santai]"]],
+            ];
+        } else {
+            $contents[] = [
+                'role' => 'user',
+                'parts' => [['text' => $userMessage]],
+            ];
+        }
 
         return $contents;
     }
@@ -275,6 +291,16 @@ class GeminiLlmProvider implements LlmProviderInterface
     protected function fallbackResponse(array $context, string $userText): string
     {
         $mood = \App\Enums\CharacterMood::fromString($context['current_mood'] ?? null);
+
+        if (!empty($context['is_proactive'])) {
+            if ($mood === \App\Enums\CharacterMood::SHY) {
+                return "Eh kok hening sih... kamu lagi sibuk yaa? 🙈 ||| Tadi aku nanyain kegiatan kamu malah dicuekin wkwk";
+            }
+            if ($mood === \App\Enums\CharacterMood::CURIOUS) {
+                return "Btw kok tiba-tiba hening nih... wkwk ||| Lagi mikirin apa sih?";
+            }
+            return "Eh kok ngilang sih? wkwk ||| Masih di situ kan? ✨";
+        }
 
         if ($mood === \App\Enums\CharacterMood::SULKING) {
             return "Dih apaan sih... masih kesel tau 😒 ||| Kamu tadi nyebelin banget ngeledek mulu ||| Males ah ngomong sama kamu dulu!";

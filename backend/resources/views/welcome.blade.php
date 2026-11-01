@@ -613,10 +613,83 @@
     let userTypingTimer = null;
     let silenceTimer = null;
     let readPhaseTimer = null;
+    let unreadHoldTimer = null;
+    let idleProactiveTimer = null;
+    let hasProactedThisSession = false;
+    let currentAuraMood = 'peaceful';
 
     // Active Reply State
     let currentReply = null;
     let activeReplyForBatch = null;
+
+    function getMoodPacing(mood) {
+        switch (mood) {
+            case 'happy':
+                return {
+                    readDelay: 2000,        // 2 detik (excited!)
+                    unreadDelay: 0,
+                    minTyping: 1200,
+                    charSpeed: 18,
+                    idleProactiveTime: 25000 // 25 detik hening -> inisiatif chat duluan
+                };
+            case 'curious':
+                return {
+                    readDelay: 2200,        // 2.2 detik (kepo!)
+                    unreadDelay: 0,
+                    minTyping: 1300,
+                    charSpeed: 20,
+                    idleProactiveTime: 25000
+                };
+            case 'shy':
+                return {
+                    readDelay: 2500,        // 2.5 detik (salting & penasaran)
+                    unreadDelay: 0,
+                    minTyping: 1400,
+                    charSpeed: 22,
+                    idleProactiveTime: 30000
+                };
+            case 'concerned':
+                return {
+                    readDelay: 3500,        // 3.5 detik (gercep perhatian)
+                    unreadDelay: 0,
+                    minTyping: 1500,
+                    charSpeed: 24,
+                    idleProactiveTime: 0
+                };
+            case 'peaceful':
+                return {
+                    readDelay: 4500,        // 4.5 detik (santai wajar)
+                    unreadDelay: 0,
+                    minTyping: 1800,
+                    charSpeed: 28,
+                    idleProactiveTime: 0
+                };
+            case 'sleepy':
+                return {
+                    readDelay: 6500,        // 6.5 detik (ngantuk, lemes)
+                    unreadDelay: 2200,      // 2.2 detik telat buka chat
+                    minTyping: 2200,
+                    charSpeed: 35,
+                    idleProactiveTime: 0
+                };
+            case 'sulking':
+                return {
+                    readDelay: 8500,        // 8.5 detik (ngambek, sengaja lama!)
+                    unreadDelay: 4500,      // 4.5 detik pura-pura belum buka chat (tetap abu-abu)
+                    minTyping: 2500,
+                    charSpeed: 38,
+                    idleProactiveTime: 0     // cewek ngambek gak bakal chat duluan!
+                };
+            default:
+                return {
+                    readDelay: 4500,
+                    unreadDelay: 0,
+                    minTyping: 1800,
+                    charSpeed: 28,
+                    idleProactiveTime: 0
+                };
+        }
+    }
 
     function setHeaderStatus(text, isTyping = false) {
         const textEl = document.getElementById('header-status-text');
@@ -675,6 +748,9 @@
         const input = document.getElementById('chat-input');
         const hasText = input.value.trim().length > 0;
 
+        stopProactiveTimer();
+        hasProactedThisSession = false;
+
         userIsTyping = true;
         clearTimeout(userTypingTimer);
         clearTimeout(silenceTimer);
@@ -684,6 +760,7 @@
             if (!isAuraProcessing) {
                 if (isAuraReading) {
                     clearTimeout(readPhaseTimer);
+                    clearTimeout(unreadHoldTimer);
                     isAuraReading = false;
                 }
                 setHeaderStatus('Virtual Life Online');
@@ -694,6 +771,8 @@
             userIsTyping = false;
             if (pendingUserMessages.length > 0 && !isAuraProcessing && !isAuraReading) {
                 checkSilenceAndRead();
+            } else if (pendingUserMessages.length === 0 && !isAuraProcessing && !isAuraReading) {
+                resetProactiveTimer();
             }
         }, 1100);
     }
@@ -718,24 +797,42 @@
         if (isAuraProcessing || isAuraReading || pendingUserMessages.length === 0) return;
 
         isAuraReading = true;
-
-        // WhatsApp read checkmark animation: turns blue with pop effect!
-        markAllTicksAsRead();
-
-        // Header status: "Membaca pesan..."
-        setHeaderStatus('Membaca pesan...');
-
-        // Extended read duration: UBAH KE 5 DETIK (5000ms)
         clearTimeout(readPhaseTimer);
-        readPhaseTimer = setTimeout(() => {
-            isAuraReading = false;
-            triggerAuraResponse();
-        }, 5000);
+        clearTimeout(unreadHoldTimer);
+        stopProactiveTimer();
+
+        const pacing = getMoodPacing(currentAuraMood);
+
+        if (pacing.unreadDelay > 0) {
+            // Unread hold (e.g. sulking or sleepy): hold as grey ticks for unreadDelay ms!
+            setHeaderStatus(currentAuraMood === 'sulking' ? 'AURA belum membuka chat...' : 'AURA online...');
+            unreadHoldTimer = setTimeout(() => {
+                if (!isAuraReading) return;
+                markAllTicksAsRead();
+                setHeaderStatus('Membaca pesan...');
+
+                const remainingReadTime = Math.max(1500, pacing.readDelay - pacing.unreadDelay);
+                readPhaseTimer = setTimeout(() => {
+                    isAuraReading = false;
+                    triggerAuraResponse();
+                }, remainingReadTime);
+            }, pacing.unreadDelay);
+        } else {
+            // Immediate read & blue ticks
+            markAllTicksAsRead();
+            setHeaderStatus('Membaca pesan...');
+
+            readPhaseTimer = setTimeout(() => {
+                isAuraReading = false;
+                triggerAuraResponse();
+            }, pacing.readDelay);
+        }
     }
 
     // Natural Emotion / Mood Presentation
     function updateMoodDisplay(moodObj) {
         if (!moodObj) return;
+        currentAuraMood = moodObj.value || 'peaceful';
         const emojiEl = document.getElementById('aura-mood-emoji');
         const labelEl = document.getElementById('aura-mood-label');
         const pillEl = document.getElementById('aura-mood-pill');
@@ -776,6 +873,10 @@
                 pillEl.style.borderColor = 'var(--border)';
                 pillEl.style.color = 'var(--text-main)';
             }
+        }
+
+        if (!isAuraProcessing && !isAuraReading && pendingUserMessages.length === 0) {
+            resetProactiveTimer();
         }
     }
 
@@ -870,6 +971,9 @@
         conversationHistory.push({ role: 'user', content: text });
 
         // Pause reading until user silence is confirmed
+        stopProactiveTimer();
+        hasProactedThisSession = false;
+        clearTimeout(unreadHoldTimer);
         clearTimeout(readPhaseTimer);
         isAuraReading = false;
         checkSilenceAndRead();
@@ -881,6 +985,8 @@
         isAuraProcessing = true;
         isAuraReading = false;
         clearTimeout(readPhaseTimer);
+        clearTimeout(unreadHoldTimer);
+        stopProactiveTimer();
         setHeaderStatus('AURA sedang mengetik...', true);
 
         const chatBox = document.getElementById('chat-box');
@@ -928,10 +1034,11 @@
             replies = ['Terima kasih sudah nemenin malam ini 🌿', 'Ada cerita seru apa lagi hari ini?'];
         }
 
-        // Realistic typing duration (at least 1.8 seconds)
+        // Realistic typing duration driven by mood
+        const pacing = getMoodPacing(currentAuraMood);
         const elapsed = Date.now() - startTime;
-        if (elapsed < 1800) {
-            await sleep(1800 - elapsed);
+        if (elapsed < pacing.minTyping) {
+            await sleep(pacing.minTyping - elapsed);
         }
 
         // Sequentially deliver each bubble with a typing pause
@@ -941,7 +1048,7 @@
             if (i > 0) {
                 chatBox.appendChild(typingIndicator);
                 scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
-                const typingDuration = Math.min(2400, Math.max(1100, bubbleText.length * 28));
+                const typingDuration = Math.min(2400, Math.max(900, bubbleText.length * pacing.charSpeed));
                 await sleep(typingDuration);
             }
 
@@ -968,7 +1075,7 @@
             scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
 
             if (i < replies.length - 1) {
-                await sleep(450);
+                await sleep(350);
             }
         }
 
@@ -977,7 +1084,124 @@
 
         if (pendingUserMessages.length > 0) {
             checkSilenceAndRead();
+        } else {
+            resetProactiveTimer();
         }
+    }
+
+    // Proactive Chat Initiation when user is idle & AURA is excited
+    function resetProactiveTimer() {
+        stopProactiveTimer();
+        if (hasProactedThisSession) return;
+        if (isAuraProcessing || isAuraReading) return;
+        if (pendingUserMessages.length > 0) return;
+
+        const input = document.getElementById('chat-input');
+        if (input && input.value.trim().length > 0) return;
+
+        const pacing = getMoodPacing(currentAuraMood);
+        if (pacing.idleProactiveTime > 0) {
+            idleProactiveTimer = setTimeout(() => {
+                triggerProactiveChat();
+            }, pacing.idleProactiveTime);
+        }
+    }
+
+    function stopProactiveTimer() {
+        if (idleProactiveTimer) {
+            clearTimeout(idleProactiveTimer);
+            idleProactiveTimer = null;
+        }
+    }
+
+    async function triggerProactiveChat() {
+        const input = document.getElementById('chat-input');
+        if (input && input.value.trim().length > 0) return;
+        if (userIsTyping || isAuraProcessing || isAuraReading || pendingUserMessages.length > 0) return;
+        if (hasProactedThisSession) return;
+
+        hasProactedThisSession = true;
+        isAuraProcessing = true;
+        setHeaderStatus('AURA sedang mengetik...', true);
+
+        const chatBox = document.getElementById('chat-box');
+        const scroll = document.getElementById('content-scroll');
+
+        const typingIndicator = createTypingIndicator();
+        chatBox.appendChild(typingIndicator);
+        scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
+
+        let replies = [];
+
+        try {
+            const res = await fetch('/api/v1/simulator/proactive', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    history: conversationHistory.slice(-6)
+                })
+            });
+            const data = await res.json();
+            if (data.current_mood) {
+                updateMoodDisplay(data.current_mood);
+            }
+            if (data.replies && Array.isArray(data.replies) && data.replies.length > 0) {
+                replies = data.replies;
+            } else if (data.reply) {
+                replies = [data.reply];
+            } else {
+                replies = ['Eh kok ngilang sih? wkwk', 'Lagi sibuk yaa?'];
+            }
+        } catch (err) {
+            replies = ['Eh masih ada orangnya gak nih? 🙈', 'Jangan-jangan ketiduran yaa wkwk'];
+        }
+
+        const pacing = getMoodPacing(currentAuraMood);
+        await sleep(Math.max(1200, pacing.minTyping));
+
+        for (let i = 0; i < replies.length; i++) {
+            const bubbleText = replies[i];
+
+            if (i > 0) {
+                chatBox.appendChild(typingIndicator);
+                scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
+                const typingDuration = Math.min(2200, Math.max(900, bubbleText.length * pacing.charSpeed));
+                await sleep(typingDuration);
+            }
+
+            if (typingIndicator.parentNode) {
+                typingIndicator.parentNode.removeChild(typingIndicator);
+            }
+
+            const wrap = document.createElement('div');
+            wrap.className = 'bubble-wrap bubble-wrap-aura';
+            wrap.innerHTML = `
+                <div class="bubble bubble-aura" ondblclick="startReplyFromBubble(this)">
+                    <div class="bubble-text-content">${escapeHtml(bubbleText)}</div>
+                    <div class="bubble-meta" style="color: var(--text-muted);">${getTimeString()}</div>
+                </div>
+                <button type="button" class="reply-trigger-btn" onclick="startReply(this)" title="Balas pesan">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 17 4 12 9 7"></polyline>
+                        <path d="M20 18v-2a4 4 0 0 0-4-4H4"></path>
+                    </svg>
+                </button>
+            `;
+            chatBox.appendChild(wrap);
+            conversationHistory.push({ role: 'model', content: bubbleText });
+            scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
+
+            if (i < replies.length - 1) {
+                await sleep(350);
+            }
+        }
+
+        isAuraProcessing = false;
+        setHeaderStatus('Virtual Life Online');
+    }
     }
 
     const inputEl = document.getElementById('chat-input');

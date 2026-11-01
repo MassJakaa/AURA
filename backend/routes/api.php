@@ -158,4 +158,66 @@ Route::prefix('v1/simulator')->group(function () {
             'location' => $activity?->location?->name,
         ]);
     });
+
+    Route::post('/proactive', function (Request $request, \App\Services\Character\CharacterService $charService, \App\Services\Activity\ActivityEngine $actEngine, \App\Domain\Ai\LlmProviderInterface $llm) {
+        $character = $charService->getPrimaryCharacter();
+        $activity = $actEngine->getCurrentActivity($character);
+
+        $cachedMood = \Illuminate\Support\Facades\Cache::get('aura_simulator_mood', 'happy');
+        $currentMood = \App\Enums\CharacterMood::fromString($cachedMood);
+
+        $historyInput = $request->input('history', []);
+        $recentConversation = [];
+        if (is_array($historyInput)) {
+            foreach (array_slice($historyInput, -6) as $h) {
+                if (isset($h['role'], $h['content'])) {
+                    $recentConversation[] = [
+                        'role' => $h['role'] === 'user' ? 'user' : 'model',
+                        'content' => (string) $h['content'],
+                    ];
+                }
+            }
+        }
+
+        $context = [
+            'virtual_life_context' => $activity
+                ? "AURA saat ini sedang: {$activity->name} di {$activity->location?->name}."
+                : "AURA sedang santai di kamarnya.",
+            'current_mood' => $currentMood->value,
+            'recent_conversation' => $recentConversation,
+            'is_proactive' => true,
+        ];
+
+        $reply = $llm->generateResponse($context, '');
+
+        if (method_exists($llm, 'extractMoodTag')) {
+            $extracted = $llm->extractMoodTag($reply);
+            if (!empty($extracted['mood'])) {
+                $newMood = \App\Enums\CharacterMood::fromString($extracted['mood']);
+                \Illuminate\Support\Facades\Cache::put('aura_simulator_mood', $newMood->value, now()->addDays(1));
+                $currentMood = $newMood;
+            }
+        }
+
+        $bubbles = method_exists($llm, 'splitIntoBubbles')
+            ? $llm->splitIntoBubbles($reply)
+            : preg_split('/\|\|\||\n\s*\n/', $reply, -1, PREG_SPLIT_NO_EMPTY);
+        $bubbles = array_values(array_map('trim', array_filter($bubbles)));
+        if (empty($bubbles)) {
+            $bubbles = [trim($reply)];
+        }
+
+        return response()->json([
+            'success' => true,
+            'reply' => implode("\n\n", $bubbles),
+            'replies' => $bubbles,
+            'current_mood' => [
+                'value' => $currentMood->value,
+                'label' => $currentMood->label(),
+                'emoji' => $currentMood->emoji(),
+            ],
+            'current_activity' => $activity?->name,
+            'location' => $activity?->location?->name,
+        ]);
+    });
 });
