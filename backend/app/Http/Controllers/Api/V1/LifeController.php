@@ -30,6 +30,9 @@ class LifeController extends Controller
         $nextPlanned = $currentActivity ? $this->activityEngine->getNextPlannedActivity($character, $currentActivity) : null;
         $charTime = $this->clock->getCharacterTime($character);
 
+        $cachedMood = \Illuminate\Support\Facades\Cache::get('aura_simulator_mood', 'peaceful');
+        $mood = \App\Enums\CharacterMood::fromString($cachedMood);
+
         return response()->json([
             'success' => true,
             'message' => 'Virtual life status retrieved successfully',
@@ -46,6 +49,16 @@ class LifeController extends Controller
                 ],
                 'current_activity' => $currentActivity ? new ActivityResource($currentActivity) : null,
                 'next_planned_activity' => $nextPlanned,
+                'current_mood' => [
+                    'value' => $mood->value,
+                    'label' => $mood->label(),
+                    'emoji' => $mood->emoji(),
+                ],
+                'available_moods' => array_map(fn($m) => [
+                    'value' => $m->value,
+                    'label' => $m->label(),
+                    'emoji' => $m->emoji(),
+                ], \App\Enums\CharacterMood::cases()),
             ],
             'meta' => [],
         ]);

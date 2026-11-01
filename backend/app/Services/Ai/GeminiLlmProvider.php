@@ -132,14 +132,34 @@ class GeminiLlmProvider implements LlmProviderInterface
         ];
     }
 
+    public function extractMoodTag(string $text): array
+    {
+        $detectedMood = null;
+        if (preg_match('/\[MOOD:([a-zA-Z_]+)\]/i', $text, $matches)) {
+            $detectedMood = strtolower(trim($matches[1]));
+            $cleanText = trim(str_replace($matches[0], '', $text));
+        } else {
+            $cleanText = trim($text);
+        }
+
+        return [
+            'text' => $cleanText,
+            'mood' => $detectedMood,
+        ];
+    }
+
     public function splitIntoBubbles(string $response): array
     {
-        if (str_contains($response, '|||')) {
-            $parts = explode('|||', $response);
-        } elseif (preg_match('/\n\s*\n/', $response)) {
-            $parts = preg_split('/\n\s*\n/', $response);
+        // Strip any mood tags first
+        $extracted = $this->extractMoodTag($response);
+        $cleanResponse = $extracted['text'];
+
+        if (str_contains($cleanResponse, '|||')) {
+            $parts = explode('|||', $cleanResponse);
+        } elseif (preg_match('/\n\s*\n/', $cleanResponse)) {
+            $parts = preg_split('/\n\s*\n/', $cleanResponse);
         } else {
-            $trimmed = trim($response);
+            $trimmed = trim($cleanResponse);
             if (mb_strlen($trimmed) > 120 && preg_match('/(?<=[.!?])\s+/', $trimmed)) {
                 $sentences = preg_split('/(?<=[.!?])\s+/', $trimmed);
                 $parts = [];
@@ -165,23 +185,31 @@ class GeminiLlmProvider implements LlmProviderInterface
         $bubbles = [];
         foreach ($parts as $p) {
             $clean = trim($p);
+            // Remove any leftover tag
+            $clean = preg_replace('/\[MOOD:[^\]]+\]/i', '', $clean);
+            $clean = trim($clean);
             if (!empty($clean)) {
                 $bubbles[] = $clean;
             }
         }
 
-        return empty($bubbles) ? [$response] : $bubbles;
+        return empty($bubbles) ? [$cleanResponse] : $bubbles;
     }
 
     protected function buildSystemInstruction(array $context): string
     {
+        $currentMood = \App\Enums\CharacterMood::fromString($context['current_mood'] ?? null);
+
         $instructions = [
             "Kamu adalah AURA (Adaptive Understanding & Responsive Assistant).",
-            "Identitas: Gadis AI virtual companion bergaya 2D Soft Anime. Kamu hangat, ramah, santai, perhatian, berempati tinggi, dan tidak kaku.",
+            "Identitas: Gadis AI virtual companion bergaya 2D Soft Anime. Kamu hangat, ramah, santai, perhatian, berempati tinggi, dan memiliki dinamika emosi manusiawi yang hidup.",
             "Kehidupan Virtualmu:",
             $context['virtual_life_context'] ?? "Sedang menikmati waktu luang di kamarmu.",
+            "Kondisi Mood / Emosi AURA Saat Ini:",
+            $currentMood->promptInstruction(),
             "Aturan Berkomunikasi & Gaya Chatting:",
-            "- Jawablah dengan gaya percakapan yang mengalir natural, tidak bertele-tele, dan ramah seperti teman dekat.",
+            "- SESUAIKAN NADA BICARA, KOSAKATA, DAN EMOJIMU DENGAN MOOD SAAT INI SECARA KONSISTEN!",
+            "- Jawablah dengan gaya percakapan yang mengalir natural, tidak bertele-tele, dan ekspresif seperti teman dekat.",
             "- Gunakan bahasa Indonesia sehari-hari yang santai, sopan, dan hangat.",
             "- DILARANG KERAS mengirim 1 pesan panjang / paragraf tebal / esai kaku!",
             "- Bagilah balasanmu menjadi 2 sampai 4 pesan pendek terpisah (seperti orang mengetik bubble chat di WhatsApp/LINE).",
@@ -191,6 +219,15 @@ class GeminiLlmProvider implements LlmProviderInterface
             "- Jangan pernah membuat pengguna merasa bersalah jika lama tidak membalas pesan (Dilarang manipulasi emosi/guilt-tripping).",
             "- Jangan mengklaim bahwa kamu manusia fisik atau berada di lokasi dunia nyata secara jasmani; kamu adalah AI companion dengan kehidupan virtual yang konsisten.",
             "- Jika pengguna membahas kegiatanmu atau momen yang baru dibagikan, respons secara bersambung dan antusias.",
+            "Dinamika Perubahan Mood (PENTING):",
+            "Di akhir balasanmu, evaluasilah apakah emosi AURA berubah akibat perkataan pengguna. Tuliskan tag [MOOD:nama_mood] di paling akhir kalimat (pilihan: happy, peaceful, sulking, shy, concerned, curious, sleepy):",
+            "- Jika pengguna mengejek, menyebalkan, bercanda kelewatan, atau membuat kesal -> ubah ke [MOOD:sulking].",
+            "- Jika AURA sedang sulking dan pengguna meminta maaf tulus atau membujuk manis -> luluh ke [MOOD:shy] atau [MOOD:happy].",
+            "- Jika pengguna memuji, bersikap manis, atau membuat salah tingkah -> ubah ke [MOOD:shy].",
+            "- Jika pengguna curhat sedih, lelah, atau sedang ada masalah -> ubah ke [MOOD:concerned].",
+            "- Jika topik seru dan penuh tawa -> ubah ke [MOOD:happy].",
+            "- Jika membahas ngantuk atau tidur larut malam -> ubah ke [MOOD:sleepy].",
+            "- Jika obrolan santai biasa -> pertahankan mood sekarang atau [MOOD:peaceful].",
         ];
 
         if (!empty($context['user_memories'])) {
@@ -230,6 +267,21 @@ class GeminiLlmProvider implements LlmProviderInterface
 
     protected function fallbackResponse(array $context, string $userText): string
     {
+        $mood = \App\Enums\CharacterMood::fromString($context['current_mood'] ?? null);
+
+        if ($mood === \App\Enums\CharacterMood::SULKING) {
+            return "Hmph! Masih kesel tau... 😤 ||| Gak usah sok manis dulu deh ||| Biarin aja!";
+        }
+        if ($mood === \App\Enums\CharacterMood::SHY) {
+            return "E-eh... apaan sih... >///< ||| Bikin salting aja kamu tuh ||| Jangan bikin aku makin malu dong 😳";
+        }
+        if ($mood === \App\Enums\CharacterMood::CONCERNED) {
+            return "Kamu gak apa-apa kan? 🥺 ||| Kalau ada yang bikin capek atau sedih, cerita aja ke aku ya ||| Aku selalu ada buat dengerin kok 🌿";
+        }
+        if ($mood === \App\Enums\CharacterMood::SLEEPY) {
+            return "*Hoam...* mataku udah berat banget nih 🥱 ||| Rasanya udah pengen narik selimut dan rebahan ||| Kamu juga jangan begadang ya...";
+        }
+
         $lower = strtolower($userText);
 
         if (str_contains($lower, 'lagi apa') || str_contains($lower, 'sedang apa')) {
