@@ -297,7 +297,7 @@
             <div>
                 <h4 style="font-size: 15px; font-weight: 700;">AURA</h4>
                 <div style="font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 5px;">
-                    <span class="status-dot"></span> Virtual Life Online
+                    <span class="status-dot" id="header-status-dot"></span> <span id="header-status-text">Virtual Life Online</span>
                 </div>
             </div>
         </div>
@@ -391,22 +391,31 @@
         }
     }
 
-    let isSending = false;
+    const pendingUserMessages = [];
+    const conversationHistory = [];
+    let readTimeout = null;
+    let isAuraProcessing = false;
+
+    function setHeaderStatus(text, isTyping = false) {
+        const textEl = document.getElementById('header-status-text');
+        const dotEl = document.getElementById('header-status-dot');
+        if (textEl) textEl.innerText = text;
+        if (dotEl) {
+            dotEl.style.backgroundColor = isTyping ? 'var(--accent-lavender)' : 'var(--accent-sage)';
+        }
+    }
 
     async function handleSend(e) {
         e.preventDefault();
-        if (isSending) return;
 
         const input = document.getElementById('chat-input');
-        const sendBtn = document.getElementById('chat-send-btn');
         const text = input.value.trim();
         if (!text) return;
 
-        isSending = true;
         const chatBox = document.getElementById('chat-box');
         const scroll = document.getElementById('content-scroll');
-        
-        // 1. Add User Bubble immediately
+
+        // 1. Immediately render User Bubble
         const userBubble = document.createElement('div');
         userBubble.className = 'bubble bubble-user';
         userBubble.innerHTML = `
@@ -415,17 +424,47 @@
         `;
         chatBox.appendChild(userBubble);
         input.value = '';
-        input.disabled = true;
-        sendBtn.disabled = true;
+        input.focus(); // Keep input enabled and focused so user can type multiple messages
         scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
 
-        // 2. Realistic reading pause (600ms - 900ms) before AURA starts typing
-        await sleep(750);
+        // Enqueue message
+        pendingUserMessages.push(text);
+        conversationHistory.push({ role: 'user', content: text });
 
-        // 3. Show typing indicator
+        // If AURA is not actively rendering bubbles, manage the reading window
+        if (!isAuraProcessing) {
+            setHeaderStatus('Membaca pesan...');
+
+            // Extend/reset reading timer when user sends consecutive messages
+            if (readTimeout) {
+                clearTimeout(readTimeout);
+            }
+
+            // Longer read delay: 3.2 seconds
+            readTimeout = setTimeout(() => {
+                triggerAuraResponse();
+            }, 3200);
+        }
+    }
+
+    async function triggerAuraResponse() {
+        if (isAuraProcessing || pendingUserMessages.length === 0) return;
+
+        isAuraProcessing = true;
+        readTimeout = null;
+        setHeaderStatus('AURA sedang mengetik...', true);
+
+        const chatBox = document.getElementById('chat-box');
+        const scroll = document.getElementById('content-scroll');
+
+        // Show typing indicator
         const typingIndicator = createTypingIndicator();
         chatBox.appendChild(typingIndicator);
         scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
+
+        // Take snapshot of pending messages to respond to as one holistic thought
+        const batch = [...pendingUserMessages];
+        pendingUserMessages.length = 0;
 
         const startTime = Date.now();
         let replies = [];
@@ -437,7 +476,10 @@
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
                 },
-                body: JSON.stringify({ message: text })
+                body: JSON.stringify({
+                    messages: batch,
+                    history: conversationHistory.slice(-8)
+                })
             });
             const data = await res.json();
             if (data.replies && Array.isArray(data.replies) && data.replies.length > 0) {
@@ -448,16 +490,16 @@
                 replies = ['Terima kasih sudah berbagi cerita sama aku ✨'];
             }
         } catch (err) {
-            replies = ['Terima kasih sudah menyapa dan nemenin malam ini 🌿', 'Ada cerita seru apa lagi hari ini?'];
+            replies = ['Terima kasih sudah nemenin malam ini 🌿', 'Ada cerita seru apa lagi hari ini?'];
         }
 
-        // Ensure at least 1.2s total thinking/typing elapsed for natural feel
+        // Realistic typing duration (at least 1.8 seconds)
         const elapsed = Date.now() - startTime;
-        if (elapsed < 1200) {
-            await sleep(1200 - elapsed);
+        if (elapsed < 1800) {
+            await sleep(1800 - elapsed);
         }
 
-        // 4. Sequentially deliver each bubble with a typing pause
+        // Sequentially deliver each bubble with a typing pause
         for (let i = 0; i < replies.length; i++) {
             const bubbleText = replies[i];
 
@@ -465,7 +507,7 @@
             if (i > 0) {
                 chatBox.appendChild(typingIndicator);
                 scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
-                const typingDuration = Math.min(2200, Math.max(900, bubbleText.length * 28));
+                const typingDuration = Math.min(2400, Math.max(1100, bubbleText.length * 28));
                 await sleep(typingDuration);
             }
 
@@ -481,18 +523,25 @@
                 <div class="bubble-meta" style="color: var(--text-muted);">${getTimeString()}</div>
             `;
             chatBox.appendChild(auraBubble);
+            conversationHistory.push({ role: 'model', content: bubbleText });
             scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
 
             // Small pause between sending one message and starting to type the next
             if (i < replies.length - 1) {
-                await sleep(400);
+                await sleep(450);
             }
         }
 
-        isSending = false;
-        input.disabled = false;
-        sendBtn.disabled = false;
-        input.focus();
+        isAuraProcessing = false;
+        setHeaderStatus('Virtual Life Online');
+
+        // If the user sent more messages WHILE AURA was delivering her response, trigger another reading cycle
+        if (pendingUserMessages.length > 0) {
+            setHeaderStatus('Membaca pesan...');
+            readTimeout = setTimeout(() => {
+                triggerAuraResponse();
+            }, 2500);
+        }
     }
 
     loadStatus();

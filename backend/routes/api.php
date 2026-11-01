@@ -77,13 +77,32 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 Route::prefix('v1/simulator')->group(function () {
     Route::get('/status', [LifeController::class, 'status']);
     Route::post('/chat', function (Request $request, \App\Services\Character\CharacterService $charService, \App\Services\Activity\ActivityEngine $actEngine, \App\Domain\Ai\LlmProviderInterface $llm) {
-        $message = $request->input('message', '');
+        $messagesInput = $request->input('messages');
+        if (is_array($messagesInput) && !empty($messagesInput)) {
+            $message = implode("\n", array_filter(array_map('trim', $messagesInput)));
+        } else {
+            $message = trim($request->input('message', ''));
+        }
+
         if (empty($message)) {
             return response()->json(['success' => false, 'reply' => 'Pesan tidak boleh kosong.']);
         }
 
         $character = $charService->getPrimaryCharacter();
         $activity = $actEngine->getCurrentActivity($character);
+
+        $historyInput = $request->input('history', []);
+        $recentConversation = [];
+        if (is_array($historyInput)) {
+            foreach (array_slice($historyInput, -8) as $h) {
+                if (isset($h['role'], $h['content'])) {
+                    $recentConversation[] = [
+                        'role' => $h['role'] === 'user' ? 'user' : 'model',
+                        'content' => (string) $h['content'],
+                    ];
+                }
+            }
+        }
 
         $context = [
             'virtual_life_context' => $activity
@@ -92,7 +111,7 @@ Route::prefix('v1/simulator')->group(function () {
             'user_memories' => [
                 "- Pengguna suka topik santai, buku, dan kopi.",
             ],
-            'recent_conversation' => [],
+            'recent_conversation' => $recentConversation,
         ];
 
         $reply = $llm->generateResponse($context, $message);
