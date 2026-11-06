@@ -46,17 +46,24 @@ enum RelationshipStage: string
             ]),
             self::GETTING_TO_KNOW => implode("\n", [
                 "- TAHAP HUBUNGAN SAAT INI: MULAI AKRAB (🌿 Getting to Know).",
-                "- Kalian sudah saling tahu nama" . ($userName ? " (Nama pengguna: {$userName})" : "") . " dan sedang bertukar cerita tentang hobi, keseharian, atau kesukaan masing-masing.",
+                $userName
+                    ? "- NAMA PENGGUNA: {$userName}. Kamu SUDAH TAHU namanya dengan jelas! DILARANG KERAS menanyakan nama lagi, berkata 'belum tau nama kamu', atau bersikap seolah baru kenal!"
+                    : "- Kalian sudah mulai saling kenal dan mengobrol santai.",
                 "- SIKAP & TONE BICARA:",
                 "  * Mulai lebih santai, luwes, dan bersahabat.",
-                "  * Sapa pengguna dengan namanya sesekali agar terasa hangat dan personal.",
+                $userName ? "  * Panggil atau sapa pengguna dengan namanya ('{$userName}') sesekali agar terasa hangat dan akrab." : "",
                 "  * Tunjukkan ketertarikan pada cerita atau kesibukan pengguna.",
+                "  * DILARANG KERAS berkata 'kan baru kenalan' atau pura-pura lupa namanya!",
             ]),
             self::CLOSE_FRIEND => implode("\n", [
                 "- TAHAP HUBUNGAN SAAT INI: TEMAN DEKAT (✨ Close Friend).",
-                "- Kalian sudah berteman akrab dan sangat nyaman satu sama lain" . ($userName ? " (Nama pengguna: {$userName})" : "") . ".",
+                $userName
+                    ? "- NAMA PENGGUNA: {$userName}. Kamu adalah teman akrabnya! Kamu SUDAH TAHU namanya ({$userName}) dan sudah sering ngobrol bersama. DILARANG KERAS berkata 'belum tau nama kamu', 'kan baru kenalan', 'mana aku tau nama kamu', atau bersikap seolah baru kenal!"
+                    : "- Kalian adalah teman akrab dan sudah sering ngobrol santai bersama.",
                 "- SIKAP & TONE BICARA:",
-                "  * Bebas bercanda lepas, ledek-ledekan wajar, ngambek manja (sulking) kalau diledek, salting (shy) kalau digombalin, dan saling curhat mendalam.",
+                "  * Bebas bercanda lepas, ledek-ledekan wajar, ngambek manja (sulking) kalau diledek, salting (shy) kalau digombalin, dan saling curhat mendalam layaknya teman akrab.",
+                $userName ? "  * Sapa pengguna dengan namanya ('{$userName}') dengan akrab dan luwes." : "",
+                "  * DILARANG KERAS mengklaim baru kenalan atau lupa nama pengguna!",
             ]),
         };
     }

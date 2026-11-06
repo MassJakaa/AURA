@@ -242,8 +242,12 @@ class GeminiLlmProvider implements LlmProviderInterface
         $userName = $context['user_name'] ?? null;
         $instructions[] = $stage->promptInstruction($userName);
 
+        if (!empty($userName)) {
+            $instructions[] = "IDENTITAS PENGGUNA (MUTLAK DIINGAT):\n- Nama pengguna saat ini adalah: {$userName}.\n- Kamu SUDAH TAHU namanya dan sering mengobrol dengannya. DILARANG KERAS bertanya 'siapa nama kamu', berkata 'belum tau nama kamu', atau berkata 'kan baru kenal'!";
+        }
+
         if (!empty($context['user_memories'])) {
-            $instructions[] = "Informasi Memori Pengguna:\n" . implode("\n", $context['user_memories']);
+            $instructions[] = "MEMORI & FAKTA PENGGUNA (INGATAN JANGKA PANJANG):\n- " . implode("\n- ", $context['user_memories']);
         }
 
         if (!empty($context['reply_context'])) {

@@ -209,6 +209,36 @@ Route::prefix('v1/simulator')->group(function () {
         // Detect and save user name if mentioned in this message
         $detectedName = $relService->detectAndStoreUserName($conversation, $message);
 
+        $userName = $conversation->metadata['user_name'] ?? null;
+        if (!empty($userName)) {
+            \App\Models\Memory::firstOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'category' => 'identity',
+                ],
+                [
+                    'content' => "Nama pengguna adalah {$userName}.",
+                    'importance_score' => 1.0,
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        // Build recent conversation history directly from database BEFORE saving new message (to prevent duplication)
+        $recentMessages = $conversation->messages()
+            ->latest('created_at')
+            ->take(35)
+            ->get()
+            ->reverse();
+
+        $recentConversation = [];
+        foreach ($recentMessages as $m) {
+            $recentConversation[] = [
+                'role' => $m->sender_type === 'user' ? 'user' : 'model',
+                'content' => $m->content,
+            ];
+        }
+
         // Save incoming user message(s) to database
         $replyTo = $request->input('reply_to');
         foreach ($rawList as $userText) {
@@ -228,21 +258,6 @@ Route::prefix('v1/simulator')->group(function () {
 
         $cachedMood = \Illuminate\Support\Facades\Cache::get('aura_simulator_mood', 'peaceful');
         $currentMood = \App\Enums\CharacterMood::fromString($cachedMood);
-
-        // Build recent conversation history directly from database
-        $recentMessages = $conversation->messages()
-            ->latest('created_at')
-            ->take(12)
-            ->get()
-            ->reverse();
-
-        $recentConversation = [];
-        foreach ($recentMessages as $m) {
-            $recentConversation[] = [
-                'role' => $m->sender_type === 'user' ? 'user' : 'model',
-                'content' => $m->content,
-            ];
-        }
 
         $currentTimeWib = now()->timezone('Asia/Jakarta')->format('H:i');
         $hour = (int) now()->timezone('Asia/Jakarta')->format('G');
@@ -354,7 +369,7 @@ Route::prefix('v1/simulator')->group(function () {
 
         $recentMessages = $conversation->messages()
             ->latest('created_at')
-            ->take(8)
+            ->take(30)
             ->get()
             ->reverse();
 

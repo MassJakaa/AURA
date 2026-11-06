@@ -112,6 +112,7 @@ class RelationshipService
     public function resetConversation(User $user, Character $character): Conversation
     {
         Conversation::where('user_id', $user->id)->update(['is_active' => false]);
+        \App\Models\Memory::where('user_id', $user->id)->update(['is_active' => false]);
 
         $conversation = Conversation::create([
             'user_id' => $user->id,
