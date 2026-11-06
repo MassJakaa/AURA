@@ -238,6 +238,10 @@ class GeminiLlmProvider implements LlmProviderInterface
             "- WAJIB: Pastikan tag [MOOD:nama_mood] selalu ada di bagian paling akhir output agar status emosimu tercatat secara akurat.",
         ];
 
+        $stage = \App\Enums\RelationshipStage::fromString($context['relationship_stage'] ?? null);
+        $userName = $context['user_name'] ?? null;
+        $instructions[] = $stage->promptInstruction($userName);
+
         if (!empty($context['user_memories'])) {
             $instructions[] = "Informasi Memori Pengguna:\n" . implode("\n", $context['user_memories']);
         }
@@ -256,7 +260,7 @@ class GeminiLlmProvider implements LlmProviderInterface
 
         // Training corpus & few-shot exemplars of real girl chat on WhatsApp
         $isProactive = !empty($context['is_proactive']);
-        $instructions[] = GirlChatExemplars::getFewShotPromptSection($currentMood, $isProactive);
+        $instructions[] = GirlChatExemplars::getFewShotPromptSection($currentMood, $isProactive, $stage);
 
         return implode("\n\n", $instructions);
     }
@@ -296,6 +300,8 @@ class GeminiLlmProvider implements LlmProviderInterface
     protected function fallbackResponse(array $context, string $userText): string
     {
         $mood = \App\Enums\CharacterMood::fromString($context['current_mood'] ?? null);
+        $stage = \App\Enums\RelationshipStage::fromString($context['relationship_stage'] ?? null);
+        $lower = strtolower($userText);
 
         if (!empty($context['is_proactive'])) {
             if ($mood === \App\Enums\CharacterMood::SHY) {
@@ -305,6 +311,13 @@ class GeminiLlmProvider implements LlmProviderInterface
                 return "Btw kok tiba-tiba hening nih... wkwk ||| Lagi mikirin apa sih?";
             }
             return "Eh kok ngilang sih? wkwk ||| Masih di situ kan? ✨";
+        }
+
+        if ($stage === \App\Enums\RelationshipStage::FIRST_MEETING) {
+            if (str_contains($lower, 'nama') || str_contains($lower, 'kenalin') || str_contains($lower, 'aku ') || str_contains($lower, 'panggil')) {
+                return "Salam kenal yaa! ✨ ||| Seneng deh akhirnya tau nama kamu ||| Sekarang lagi sibuk apa nih? Atau lagi santai-santai aja? [MOOD:happy]";
+            }
+            return "Halo! Salam kenal yaa 🌿 ||| Aku AURA, seneng bisa kenalan sama kamu ||| Btw aku boleh tau nama kamu siapa nih? [MOOD:peaceful]";
         }
 
         if ($mood === \App\Enums\CharacterMood::SULKING) {

@@ -30,11 +30,29 @@ class GirlChatExemplars
     }
 
     /**
-     * Get tailored few-shot conversation exemplars based on the active mood.
+     * Get tailored few-shot conversation exemplars based on the active mood and relationship stage.
      */
-    public static function getFewShotPromptSection(CharacterMood $mood, bool $isProactive = false): string
+    public static function getFewShotPromptSection(CharacterMood $mood, bool $isProactive = false, ?\App\Enums\RelationshipStage $stage = null): string
     {
         $rules = self::getGeneralGirlChatRules();
+
+        if ($stage === \App\Enums\RelationshipStage::FIRST_MEETING) {
+            $firstMeetingExemplars = [
+                "CONTOH CHAT NYATA TAHAP PERKENALAN AWAL (FIRST MEETING / BARU KENAL):",
+                "Contoh 1 (Sapaan Awal & Menanyakan Nama):",
+                "User: Halo Aura",
+                "AURA: Halo! Salam kenal yaa 🌿 ||| Senang akhirnya bisa kenalan sama kamu ||| Btw aku boleh tau nama kamu siapa nih? hehe [MOOD:peaceful]",
+                "",
+                "Contoh 2 (User Memperkenalkan Namanya):",
+                "User: Hai, nama aku Dimas",
+                "AURA: Hai Dimas! Salam kenal yaa ✨ ||| Wah seneng deh akhirnya tau nama kamu ||| Sekarang lagi sibuk apa nih Dimas? Atau lagi santai aja? [MOOD:happy]",
+                "",
+                "Contoh 3 (User Bertanya Siapa AURA):",
+                "User: Kamu siapa sih Aura?",
+                "AURA: Kenalin, aku AURA 🌿 ||| Teman virtual yang siap nemenin hari-hari kamu ngobrol santai ||| Panggil aja Aura yaa. Btw nama kamu siapa? [MOOD:peaceful]",
+            ];
+            return implode("\n", array_merge($rules, ["", ...$firstMeetingExemplars]));
+        }
 
         if ($isProactive) {
             $exemplars = [

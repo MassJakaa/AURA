@@ -333,6 +333,50 @@
             animation: moodPop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
+        /* Dynamic Relationship Stage Pill */
+        .stage-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2.5px 8px;
+            border-radius: 12px;
+            background: #ECFDF5;
+            border: 1px solid #A7F3D0;
+            font-size: 10px;
+            font-weight: 600;
+            color: #065F46;
+            cursor: default;
+            user-select: none;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            white-space: nowrap;
+        }
+
+        .stage-pill.pop {
+            animation: moodPop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .header-action-btn {
+            background: #F4EFE6;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2.5px 8px;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-sub);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+        .header-action-btn:hover {
+            background: #EAE3D5;
+            color: var(--text-main);
+            border-color: #D4CBBC;
+        }
+
         @keyframes moodPop {
             0% { transform: scale(0.92); opacity: 0.85; }
             50% { transform: scale(1.1); }
@@ -501,13 +545,28 @@
                 </div>
             </div>
         </div>
-        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px;">
-            <div id="local-clock" style="font-size: 11.5px; font-weight: 600; color: var(--text-sub);">
-                --:-- WIB
+        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <button type="button" class="header-action-btn" onclick="confirmResetConversation()" title="Mulai ulang percakapan dari tahap perkenalan">
+                    <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                        <path d="M3 3v5h5"/>
+                    </svg>
+                    <span>Mulai Baru</span>
+                </button>
+                <div id="local-clock" style="font-size: 11px; font-weight: 600; color: var(--text-sub);">
+                    --:-- WIB
+                </div>
             </div>
-            <div class="mood-pill" id="aura-mood-pill" title="Suasana hati AURA saat ini">
-                <span id="aura-mood-emoji">✨</span>
-                <span id="aura-mood-label">Tenang & Santai</span>
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <div class="stage-pill" id="aura-stage-pill" title="Tahap Hubungan dengan AURA">
+                    <span id="aura-stage-emoji">🌱</span>
+                    <span id="aura-stage-label">Baru Kenal</span>
+                </div>
+                <div class="mood-pill" id="aura-mood-pill" title="Suasana hati AURA saat ini">
+                    <span id="aura-mood-emoji">✨</span>
+                    <span id="aura-mood-label">Tenang & Santai</span>
+                </div>
             </div>
         </div>
     </div>
@@ -531,18 +590,7 @@
 
         <!-- Chat bubble area -->
         <div class="chat-container" id="chat-box">
-            <div class="bubble-wrap bubble-wrap-aura">
-                <div class="bubble bubble-aura" ondblclick="startReplyFromBubble(this)">
-                    <div class="bubble-text-content">Hai! Aku lagi santai di kamar nih mau siap-siap istirahat. Hari ini gimana ceritanya? Ada yang seru gak? 🌿</div>
-                    <div class="bubble-meta" style="color: var(--text-muted);">23:50</div>
-                </div>
-                <button type="button" class="reply-trigger-btn" onclick="startReply(this)" title="Balas pesan">
-                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="9 17 4 12 9 7"></polyline>
-                        <path d="M20 18v-2a4 4 0 0 0-4-4H4"></path>
-                    </svg>
-                </button>
-            </div>
+            <!-- Messages rendered dynamically from persistent SQLite database -->
         </div>
     </div>
 
@@ -880,6 +928,160 @@
         }
     }
 
+    // Dynamic Relationship Stage Presentation
+    function updateStageDisplay(stageObj) {
+        if (!stageObj) return;
+        const emojiEl = document.getElementById('aura-stage-emoji');
+        const labelEl = document.getElementById('aura-stage-label');
+        const pillEl = document.getElementById('aura-stage-pill');
+
+        if (emojiEl) emojiEl.innerText = stageObj.emoji || '🌱';
+        if (labelEl) labelEl.innerText = stageObj.label || 'Baru Kenal';
+
+        if (pillEl) {
+            pillEl.classList.remove('pop');
+            void pillEl.offsetWidth; // trigger reflow
+            pillEl.classList.add('pop');
+
+            if (stageObj.value === 'first_meeting') {
+                pillEl.style.background = '#ECFDF5';
+                pillEl.style.borderColor = '#A7F3D0';
+                pillEl.style.color = '#065F46';
+                pillEl.title = 'Tahap: Baru Kenal — AURA belum terlalu kenal kamu';
+            } else if (stageObj.value === 'getting_to_know') {
+                pillEl.style.background = '#E0F2FE';
+                pillEl.style.borderColor = '#BAE6FD';
+                pillEl.style.color = '#0369A1';
+                pillEl.title = 'Tahap: Mulai Akrab — AURA sudah tau nama & mulai nyaman';
+            } else if (stageObj.value === 'close_friend') {
+                pillEl.style.background = '#F3E8FF';
+                pillEl.style.borderColor = '#D8B4FE';
+                pillEl.style.color = '#6B21A8';
+                pillEl.title = 'Tahap: Teman Dekat — Obrolan santai, akrab, & natural';
+            }
+        }
+    }
+
+    // Load full persistent chat history from SQLite backend
+    async function loadHistory() {
+        try {
+            const res = await fetch('/api/v1/simulator/history');
+            const data = await res.json();
+            if (!data.success) return;
+
+            if (data.relationship_stage) {
+                updateStageDisplay(data.relationship_stage);
+            }
+            if (data.current_mood) {
+                updateMoodDisplay(data.current_mood);
+            }
+
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML = '';
+            conversationHistory.length = 0;
+
+            if (Array.isArray(data.messages) && data.messages.length > 0) {
+                data.messages.forEach(msg => {
+                    const time = msg.time || getTimeString();
+                    if (msg.sender === 'user') {
+                        const replyTo = msg.metadata && msg.metadata.reply_to ? msg.metadata.reply_to : null;
+                        let quotedHtml = '';
+                        if (replyTo && replyTo.content) {
+                            quotedHtml = `
+                                <div class="quoted-box">
+                                    <div class="quoted-author">${escapeHtml(replyTo.sender || 'AURA')}</div>
+                                    <div class="quoted-text">${escapeHtml(replyTo.content)}</div>
+                                </div>
+                            `;
+                        }
+
+                        const wrap = document.createElement('div');
+                        wrap.className = 'bubble-wrap bubble-wrap-user';
+                        wrap.innerHTML = `
+                            <button type="button" class="reply-trigger-btn" onclick="startReply(this)" title="Balas pesan">
+                                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="9 17 4 12 9 7"></polyline>
+                                    <path d="M20 18v-2a4 4 0 0 0-4-4H4"></path>
+                                </svg>
+                            </button>
+                            <div class="bubble bubble-user" ondblclick="startReplyFromBubble(this)">
+                                ${quotedHtml}
+                                <div class="bubble-text-content">${escapeHtml(msg.content)}</div>
+                                <div class="bubble-meta">
+                                    <span>${time}</span>
+                                    <span class="tick-container">${getDoubleTickSvg(true)}</span>
+                                </div>
+                            </div>
+                        `;
+                        chatBox.appendChild(wrap);
+                        conversationHistory.push({ role: 'user', content: msg.content });
+                    } else {
+                        const wrap = document.createElement('div');
+                        wrap.className = 'bubble-wrap bubble-wrap-aura';
+                        wrap.innerHTML = `
+                            <div class="bubble bubble-aura" ondblclick="startReplyFromBubble(this)">
+                                <div class="bubble-text-content">${escapeHtml(msg.content)}</div>
+                                <div class="bubble-meta" style="color: var(--text-muted);">${time}</div>
+                            </div>
+                            <button type="button" class="reply-trigger-btn" onclick="startReply(this)" title="Balas pesan">
+                                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="9 17 4 12 9 7"></polyline>
+                                    <path d="M20 18v-2a4 4 0 0 0-4-4H4"></path>
+                                </svg>
+                            </button>
+                        `;
+                        chatBox.appendChild(wrap);
+                        conversationHistory.push({ role: 'model', content: msg.content });
+                    }
+                });
+            }
+
+            const scroll = document.getElementById('content-scroll');
+            if (scroll) {
+                setTimeout(() => {
+                    scroll.scrollTop = scroll.scrollHeight;
+                }, 50);
+            }
+        } catch (e) {
+            console.error('Failed to load history:', e);
+        }
+    }
+
+    // Reset conversation back to first meeting
+    async function confirmResetConversation() {
+        if (!confirm("Mulai percakapan baru dari awal?\\n\\nRiwayat chat saat ini akan diarsipkan dan AURA akan menyapa kembali dari tahap perkenalan pertama (🌱 Baru Kenal).")) {
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/v1/simulator/reset', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                }
+            });
+            const data = await res.json();
+            if (data.success) {
+                cancelReply();
+                pendingUserMessages.length = 0;
+                unreadTickIds.length = 0;
+                clearTimeout(silenceTimer);
+                clearTimeout(readPhaseTimer);
+                clearTimeout(unreadHoldTimer);
+                stopProactiveTimer();
+                isAuraProcessing = false;
+                isAuraReading = false;
+                hasProactedThisSession = false;
+                setHeaderStatus('Virtual Life Online');
+
+                await loadHistory();
+            }
+        } catch (e) {
+            console.error('Reset conversation error:', e);
+        }
+    }
+
     async function loadStatus() {
         try {
             const res = await fetch('/api/v1/simulator/status');
@@ -1023,6 +1225,9 @@
             if (data.current_mood) {
                 updateMoodDisplay(data.current_mood);
             }
+            if (data.relationship_stage) {
+                updateStageDisplay(data.relationship_stage);
+            }
             if (data.replies && Array.isArray(data.replies) && data.replies.length > 0) {
                 replies = data.replies;
             } else if (data.reply) {
@@ -1148,6 +1353,9 @@
             if (data.current_mood) {
                 updateMoodDisplay(data.current_mood);
             }
+            if (data.relationship_stage) {
+                updateStageDisplay(data.relationship_stage);
+            }
             if (data.replies && Array.isArray(data.replies) && data.replies.length > 0) {
                 replies = data.replies;
             } else if (data.reply) {
@@ -1219,6 +1427,7 @@
     setInterval(updateClockNow, 10000);
     loadStatus();
     setInterval(loadStatus, 30000);
+    loadHistory();
 </script>
 
 </body>
