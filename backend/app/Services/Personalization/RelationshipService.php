@@ -29,20 +29,6 @@ class RelationshipService
                     'user_name' => null,
                 ],
             ]);
-
-            // Create initial first-meeting greeting from AURA
-            Message::create([
-                'conversation_id' => $conversation->id,
-                'sender_type' => 'companion',
-                'sender_id' => $character->id,
-                'message_type' => MessageType::TEXT,
-                'content' => "Halo! Salam kenal ya... Aku AURA 🌿 Senang akhirnya bisa kenalan sama kamu. Btw boleh tau nama kamu siapa? hehe",
-                'is_read' => true,
-                'metadata' => [
-                    'mood' => 'peaceful',
-                    'stage' => RelationshipStage::FIRST_MEETING->value,
-                ],
-            ]);
         }
 
         return $conversation;
@@ -122,19 +108,6 @@ class RelationshipService
             'metadata' => [
                 'relationship_stage' => RelationshipStage::FIRST_MEETING->value,
                 'user_name' => null,
-            ],
-        ]);
-
-        Message::create([
-            'conversation_id' => $conversation->id,
-            'sender_type' => 'companion',
-            'sender_id' => $character->id,
-            'message_type' => MessageType::TEXT,
-            'content' => "Halo! Salam kenal ya... Aku AURA 🌿 Senang akhirnya bisa kenalan sama kamu. Btw boleh tau nama kamu siapa? hehe",
-            'is_read' => true,
-            'metadata' => [
-                'mood' => 'peaceful',
-                'stage' => RelationshipStage::FIRST_MEETING->value,
             ],
         ]);
 

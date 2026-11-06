@@ -362,6 +362,15 @@ Route::prefix('v1/simulator')->group(function () {
         $activity = $actEngine->getCurrentActivity($character);
 
         $conversation = $relService->getOrCreateActiveConversation($user, $character);
+
+        // Do not trigger proactive chat if user has never sent any message yet
+        if ($conversation->messages()->where('sender_type', 'user')->count() === 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Menunggu pesan/sapaan pertama dari pengguna.',
+            ]);
+        }
+
         $stage = $relService->evaluateRelationshipStage($conversation);
 
         $cachedMood = \Illuminate\Support\Facades\Cache::get('aura_simulator_mood', 'happy');

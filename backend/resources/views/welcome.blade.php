@@ -1034,6 +1034,14 @@
                         conversationHistory.push({ role: 'model', content: msg.content });
                     }
                 });
+            } else {
+                chatBox.innerHTML = `
+                    <div id="empty-chat-hint" style="text-align: center; margin: 35px auto 20px auto; color: var(--text-muted); font-size: 12px; line-height: 1.6; max-width: 260px; background: rgba(255,255,255,0.75); padding: 14px 18px; border-radius: 18px; border: 1px dashed var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                        <div style="font-size: 22px; margin-bottom: 6px;">🌱</div>
+                        <b style="color: var(--text-main); font-size: 13px;">Tahap Perkenalan Awal</b><br>
+                        Kirim sapaan pertama kamu (misal: <i>"Halo Aura"</i> atau <i>"Hai!"</i>) untuk mulai berkenalan dengan AURA ✨
+                    </div>
+                `;
             }
 
             const scroll = document.getElementById('content-scroll');
@@ -1049,7 +1057,7 @@
 
     // Reset conversation back to first meeting
     async function confirmResetConversation() {
-        if (!confirm("Mulai percakapan baru dari awal?\\n\\nRiwayat chat saat ini akan diarsipkan dan AURA akan menyapa kembali dari tahap perkenalan pertama (🌱 Baru Kenal).")) {
+        if (!confirm("Mulai percakapan baru dari awal?\\n\\nRiwayat chat saat ini akan diarsipkan dan kamu bisa menyapa AURA untuk berkenalan dari awal (🌱 Baru Kenal).")) {
             return;
         }
 
@@ -1120,6 +1128,12 @@
 
         const chatBox = document.getElementById('chat-box');
         const scroll = document.getElementById('content-scroll');
+
+        // Remove empty state hint if present
+        const emptyHint = document.getElementById('empty-chat-hint');
+        if (emptyHint) {
+            emptyHint.remove();
+        }
 
         // Check if there is an active quoted reply
         let quotedHtml = '';
@@ -1193,6 +1207,12 @@
 
         const chatBox = document.getElementById('chat-box');
         const scroll = document.getElementById('content-scroll');
+
+        // Remove empty state hint if present
+        const emptyHint = document.getElementById('empty-chat-hint');
+        if (emptyHint) {
+            emptyHint.remove();
+        }
 
         // Show typing indicator
         const typingIndicator = createTypingIndicator();
@@ -1300,6 +1320,7 @@
         if (hasProactedThisSession) return;
         if (isAuraProcessing || isAuraReading) return;
         if (pendingUserMessages.length > 0) return;
+        if (conversationHistory.length === 0) return; // Menunggu sapaan pertama dari pengguna
 
         const input = document.getElementById('chat-input');
         if (input && input.value.trim().length > 0) return;
@@ -1331,6 +1352,12 @@
 
         const chatBox = document.getElementById('chat-box');
         const scroll = document.getElementById('content-scroll');
+
+        // Remove empty state hint if present
+        const emptyHint = document.getElementById('empty-chat-hint');
+        if (emptyHint) {
+            emptyHint.remove();
+        }
 
         const typingIndicator = createTypingIndicator();
         chatBox.appendChild(typingIndicator);
