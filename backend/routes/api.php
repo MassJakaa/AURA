@@ -269,6 +269,17 @@ Route::prefix('v1/simulator')->group(function () {
             ->pluck('content')
             ->toArray();
 
+        $charCount = mb_strlen(trim($message));
+        $wordCount = str_word_count(strip_tags($message));
+        $bubbleCount = count($rawList);
+
+        $density = 'moderate';
+        if ($charCount >= 85 || $wordCount >= 18 || ($bubbleCount >= 3 && $charCount >= 50)) {
+            $density = 'long_detailed';
+        } elseif ($charCount <= 25 && $wordCount <= 4 && $bubbleCount <= 1) {
+            $density = 'short_brief';
+        }
+
         $context = [
             'virtual_life_context' => $activity
                 ? "AURA saat ini sedang: {$activity->name} di {$activity->location?->name}."
@@ -279,6 +290,7 @@ Route::prefix('v1/simulator')->group(function () {
             'user_name' => $conversation->metadata['user_name'] ?? null,
             'user_memories' => $userMemories,
             'recent_conversation' => $recentConversation,
+            'chat_density' => $density,
         ];
 
         if (is_array($replyTo) && !empty($replyTo['content'])) {
