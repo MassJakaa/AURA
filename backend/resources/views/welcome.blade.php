@@ -2,11 +2,14 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AURA — Adaptive Understanding & Responsive Assistant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#FAF7F2">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>AURA — Virtual Life Companion</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-cream: #FAF7F2;
@@ -27,90 +30,199 @@
             margin: 0;
             padding: 0;
             font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        body {
+        html, body {
             background-color: var(--bg-cream);
             color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            height: 100%;
+            height: 100dvh;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
         }
 
-        .phone-mockup {
-            width: 100%;
-            max-width: 410px;
-            height: 820px;
-            background: var(--surface-card);
-            border-radius: 44px;
-            box-shadow: 0 25px 60px rgba(80, 60, 120, 0.12), 0 0 0 8px #E8E2D8;
+        /* Responsive Main Web Application Layout */
+        .app-layout {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
             overflow: hidden;
+            position: relative;
+            background: var(--bg-cream);
+        }
+
+        /* Left Sidebar: AURA Virtual Life Hub */
+        .app-sidebar {
+            width: 380px;
+            min-width: 340px;
+            max-width: 400px;
+            background: var(--surface-card);
+            border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            border: 1px solid var(--border);
+            height: 100%;
+            z-index: 50;
+            box-shadow: 2px 0 20px rgba(80, 60, 120, 0.03);
+            flex-shrink: 0;
         }
 
-        .phone-header {
-            padding: 12px 20px 10px;
+        .sidebar-top {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 1px solid var(--border);
             background: #FFFEFD;
-            position: sticky;
-            top: 0;
-            z-index: 20;
         }
 
-        .aura-title {
+        .sidebar-brand {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
-        .aura-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 2px solid var(--accent-lavender);
-            background: #F2E8D9;
+        .brand-sparkle {
+            font-size: 19px;
         }
 
-        .aura-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: 66% 22%;
+        .brand-name {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.3px;
         }
 
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--status-green);
-            border-radius: 50%;
-            display: inline-block;
+        .brand-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-left: 2px;
+            padding-left: 8px;
+            border-left: 1px solid var(--border);
         }
 
-        .content-scroll {
+        .sidebar-close-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 17px;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 6px 8px;
+            border-radius: 8px;
+        }
+
+        .sidebar-scroll {
             flex: 1;
             overflow-y: auto;
-            padding: 18px;
+            padding: 18px 20px;
             display: flex;
             flex-direction: column;
             gap: 16px;
-            background: #FAF8F5;
         }
 
-        /* Status Card */
+        .character-profile-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            background: #FAF8F4;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+        }
+
+        .character-avatar-wrap {
+            position: relative;
+            width: 62px;
+            height: 62px;
+            flex-shrink: 0;
+        }
+
+        .character-avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            object-position: 66% 22%;
+            border: 2.5px solid var(--accent-lavender);
+            background: #F2E8D9;
+        }
+
+        .online-indicator-dot {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 13px;
+            height: 13px;
+            background-color: var(--status-green);
+            border: 2px solid white;
+            border-radius: 50%;
+            box-shadow: 0 0 6px rgba(82, 183, 136, 0.6);
+        }
+
+        .character-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .character-name {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin: 0 0 2px 0;
+        }
+
+        .character-tagline {
+            font-size: 11px;
+            color: var(--text-sub);
+            margin-bottom: 8px;
+        }
+
+        .character-badges {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .stage-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 9px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            background: #ECFDF5;
+            border: 1px solid #A7F3D0;
+            color: #065F46;
+        }
+
+        .mood-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 9px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--accent-lavender-light);
+            border: 1px solid #DDD6FE;
+            color: #5B21B6;
+            transition: all 0.3s;
+        }
+
+        /* Live Status Card */
         .status-card {
             background: var(--surface-card);
-            border-radius: 24px;
-            padding: 20px;
+            border-radius: 20px;
+            padding: 16px 18px;
             border: 1px solid var(--border);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.02);
         }
 
         .badge-live {
@@ -118,27 +230,36 @@
             color: #6C5AA6;
             font-size: 11px;
             font-weight: 700;
-            padding: 4px 10px;
-            border-radius: 12px;
+            padding: 3px 9px;
+            border-radius: 10px;
             display: inline-block;
-            margin-bottom: 12px;
             letter-spacing: 0.3px;
         }
 
-        .act-name {
-            font-size: 17px;
+        .clock-chip {
+            font-size: 11px;
             font-weight: 700;
-            margin-bottom: 6px;
+            color: #6C5AA6;
+            background: #FAF7F2;
+            border: 1px solid #EFEAE0;
+            padding: 3px 8px;
+            border-radius: 8px;
+        }
+
+        .act-name {
+            font-size: 15.5px;
+            font-weight: 700;
+            margin: 8px 0 4px 0;
             color: var(--text-main);
         }
 
         .act-location {
-            font-size: 13px;
+            font-size: 12.5px;
             color: var(--text-sub);
             display: flex;
             align-items: center;
             gap: 6px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .time-badge {
@@ -150,8 +271,257 @@
             justify-content: space-between;
         }
 
-        /* Chat Messages */
+        /* Active Scenario Box in Sidebar */
+        .sidebar-scenario-box {
+            background: #FFFDF9;
+            border: 1px solid #EFE8DC;
+            border-radius: 18px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .sidebar-scenario-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar-scenario-kicker {
+            font-size: 10px;
+            font-weight: 800;
+            color: #8C8275;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+        }
+
+        .sidebar-story-link {
+            background: none;
+            border: none;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent-lavender);
+            cursor: pointer;
+            padding: 2px 4px;
+        }
+
+        .sidebar-story-link:hover {
+            text-decoration: underline;
+        }
+
+        .sidebar-scenario-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .sidebar-scenario-premise {
+            font-size: 11.5px;
+            color: var(--text-sub);
+            line-height: 1.45;
+            margin: 0;
+        }
+
+        .sidebar-footer {
+            padding: 14px 20px 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: #FFFEFD;
+        }
+
+        .sidebar-action-btn {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .sidebar-action-btn.primary {
+            background: var(--accent-lavender);
+            color: white;
+            border: none;
+            box-shadow: 0 2px 8px rgba(157, 140, 215, 0.3);
+        }
+
+        .sidebar-action-btn.primary:hover {
+            background: #8B78C9;
+        }
+
+        .sidebar-action-btn.secondary {
+            background: #FAF8F4;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+
+        .sidebar-action-btn.secondary:hover {
+            background: #F0ECE4;
+        }
+
+        .sidebar-caption {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 2px;
+        }
+
+        /* Right / Main Chat Area */
+        .app-main-chat {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: #FAF8F5;
+            position: relative;
+        }
+
+        .chat-header {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255, 254, 253, 0.95);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            height: 64px;
+        }
+
+        .chat-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            padding: 6px;
+            color: var(--text-main);
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .chat-header-avatar {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+        }
+
+        .chat-header-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            object-position: 66% 22%;
+            border: 2px solid var(--accent-lavender);
+            background: #F2E8D9;
+        }
+
+        .header-avatar-dot {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 10px;
+            height: 10px;
+            background-color: var(--status-green);
+            border: 1.5px solid white;
+            border-radius: 50%;
+        }
+
+        .chat-header-name {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin: 0;
+        }
+
+        .online-tag {
+            font-size: 9.5px;
+            font-weight: 700;
+            color: var(--status-green);
+            background: #E8F5E9;
+            padding: 1px 6px;
+            border-radius: 6px;
+        }
+
+        .chat-header-activity {
+            font-size: 11px;
+            color: var(--text-sub);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 320px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--status-green);
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .chat-header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-action-btn {
+            background: #FFFFFF;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 6px 12px;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--text-main);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+
+        .header-action-btn:hover {
+            background: #F4EFE6;
+            border-color: var(--accent-lavender);
+            transform: translateY(-1px);
+        }
+
+        /* Message Scroll Stream */
+        .content-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 20px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #FAF8F5;
+        }
+
         .chat-container {
+            max-width: 840px;
+            width: 100%;
+            margin: 0 auto;
             display: flex;
             flex-direction: column;
             gap: 8px;
@@ -169,11 +539,11 @@
         }
 
         .bubble {
-            max-width: 82%;
-            padding: 10px 15px;
+            max-width: 80%;
+            padding: 11px 16px;
             border-radius: 18px;
-            font-size: 13.5px;
-            line-height: 1.45;
+            font-size: 14px;
+            line-height: 1.5;
             animation: bubbleIn 0.22s ease-out forwards;
             word-break: break-word;
         }
@@ -192,6 +562,7 @@
             color: white;
             align-self: flex-end;
             border-bottom-right-radius: 4px;
+            box-shadow: 0 2px 8px rgba(157, 140, 215, 0.25);
         }
 
         .bubble-meta {
@@ -219,7 +590,7 @@
         }
 
         .tick-blue {
-            color: #53BDEB !important; /* WhatsApp iconic cyan blue tick */
+            color: #53BDEB !important;
             animation: tickPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
@@ -247,19 +618,18 @@
 
         .reply-trigger-btn {
             opacity: 0;
-            width: 26px;
-            height: 26px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
-            border: 1px solid var(--border);
-            background: white;
-            color: var(--text-muted);
+            border: none;
+            background: rgba(0,0,0,0.05);
+            color: var(--text-sub);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s ease;
+            transition: all 0.2s;
             flex-shrink: 0;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
         }
 
         .bubble-wrap:hover .reply-trigger-btn {
@@ -269,455 +639,60 @@
         .reply-trigger-btn:hover {
             background: var(--accent-lavender);
             color: white;
-            border-color: var(--accent-lavender);
             transform: scale(1.1);
         }
 
-        /* Quoted box inside message */
+        /* Quoted Bubble Box */
         .quoted-box {
             background: rgba(0, 0, 0, 0.05);
             border-left: 3.5px solid var(--accent-lavender);
-            border-radius: 8px;
-            padding: 5px 8px;
+            padding: 6px 10px;
+            border-radius: 6px;
             margin-bottom: 6px;
-            font-size: 11px;
-            line-height: 1.35;
+            font-size: 11.5px;
+            max-width: 100%;
         }
 
         .bubble-user .quoted-box {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.15);
             border-left-color: white;
-            color: #FDFBF8;
         }
 
         .quoted-author {
             font-weight: 700;
-            font-size: 10.5px;
             margin-bottom: 2px;
+            font-size: 10.5px;
             color: var(--accent-lavender);
         }
 
         .bubble-user .quoted-author {
-            color: #FFF;
-            opacity: 0.95;
+            color: rgba(255, 255, 255, 0.9);
         }
 
         .quoted-text {
+            color: var(--text-sub);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            max-width: 230px;
-            opacity: 0.9;
         }
 
-        /* Dynamic Natural Mood Pill */
-        .mood-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 2.5px 8px;
-            border-radius: 12px;
-            background: #F4EFE6;
-            border: 1px solid var(--border);
-            font-size: 10px;
-            font-weight: 600;
-            color: var(--text-main);
-            cursor: default;
-            user-select: none;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            white-space: nowrap;
-        }
-
-        .mood-pill.pop {
-            animation: moodPop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        /* Dynamic Relationship Stage Pill */
-        .stage-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 2.5px 8px;
-            border-radius: 12px;
-            background: #ECFDF5;
-            border: 1px solid #A7F3D0;
-            font-size: 10px;
-            font-weight: 600;
-            color: #065F46;
-            cursor: default;
-            user-select: none;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            white-space: nowrap;
-        }
-
-        .stage-pill.pop {
-            animation: moodPop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .header-action-btn {
-            background: #F4EFE6;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 2.5px 8px;
-            font-size: 10px;
-            font-weight: 600;
-            color: var(--text-sub);
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            transition: all 0.2s;
-        }
-
-        .header-action-btn:hover {
-            background: #EAE3D5;
-            color: var(--text-main);
-            border-color: #D4CBBC;
-        }
-
-        /* Scenario Card Banner */
-        .scenario-card {
-            background: #FFFDF9;
-            border: 1px solid #EFE8DC;
-            border-radius: 18px;
-            padding: 12px 14px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-            animation: bubbleIn 0.25s ease-out;
-        }
-
-        .scenario-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-
-        .scenario-title-group {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .scenario-badge {
-            font-size: 9.5px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 10px;
-        }
-
-        .badge-initiator-aura {
-            background: #EDE9FE;
-            color: #5B21B6;
-            border: 1px solid #DDD6FE;
-        }
-
-        .badge-initiator-user {
-            background: #ECFDF5;
-            color: #065F46;
-            border: 1px solid #A7F3D0;
-        }
-
-        .scenario-desc {
-            font-size: 11.5px;
-            color: var(--text-sub);
-            line-height: 1.45;
-            margin: 0;
-        }
-
-        .scenario-story-btn {
-            background: #F3EFFE;
-            color: #6C5AA6;
-            border: 1px solid #DDD6FE;
-            border-radius: 9px;
-            font-size: 10.5px;
-            font-weight: 700;
-            padding: 3px 9px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            white-space: nowrap;
-        }
-
-        .scenario-story-btn:hover {
-            background: #EDE6FB;
-            border-color: var(--accent-lavender);
-            transform: translateY(-1px);
-        }
-
-        /* Narrative Prologue Modal */
-        .narrative-card {
-            background: #FFFFFF;
-            max-height: 90%;
-            border-top: 1px solid #EDE6DC;
-            padding: 20px 18px 18px;
-            position: relative;
-        }
-
-        .narrative-top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .narrative-badge-kicker {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            background: #F7F4EE;
-            border: 1px solid #EAE2D5;
-            color: #7A7265;
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-            padding: 3px 8px;
-            border-radius: 8px;
-        }
-
-        .narrative-header {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            margin-bottom: 14px;
-        }
-
-        .narrative-icon-wrap {
-            width: 44px;
-            height: 44px;
-            border-radius: 14px;
-            background: linear-gradient(135deg, #F5F0FF, #EDE6FB);
-            border: 1px solid #E0D4F7;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(157, 140, 215, 0.15);
-        }
-
-        .narrative-title-group {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .narrative-title-group h3 {
-            font-size: 15.5px;
-            font-weight: 700;
-            color: var(--text-main);
-            margin: 0;
-            line-height: 1.3;
-        }
-
-        .narrative-subtitle {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-sub);
-        }
-
-        .narrative-scroll-area {
-            overflow-y: auto;
-            max-height: 380px;
-            padding-right: 2px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .narrative-story-box {
-            background: linear-gradient(180deg, #FDFCF9 0%, #F9F5EC 100%);
-            border: 1px solid #ECE2D2;
-            border-radius: 16px;
-            padding: 14px 16px;
-            position: relative;
-            box-shadow: inset 0 1px 2px rgba(255,255,255,0.8), 0 2px 6px rgba(0,0,0,0.02);
-        }
-
-        .narrative-quote-decor {
-            position: absolute;
-            top: 6px;
-            right: 12px;
-            font-size: 46px;
-            line-height: 1;
-            font-family: Georgia, serif;
-            color: rgba(157, 140, 215, 0.18);
-            pointer-events: none;
-            user-select: none;
-        }
-
-        .narrative-body-text {
-            font-size: 12.5px;
-            line-height: 1.6;
-            color: #383445;
-            position: relative;
-            z-index: 1;
-        }
-
-        .narrative-body-text p {
-            margin-bottom: 10px;
-        }
-
-        .narrative-body-text p:last-child {
-            margin-bottom: 0;
-        }
-
-        .narrative-action-box {
-            background: #F5F3FF;
-            border: 1px solid #DDD6FE;
-            border-radius: 13px;
-            padding: 10px 12px;
-            display: flex;
-            align-items: center;
-            gap: 9px;
-        }
-
-        .narrative-action-icon {
-            font-size: 16px;
-            flex-shrink: 0;
-        }
-
-        .narrative-action-text {
-            font-size: 11.5px;
-            color: #5B21B6;
-            font-weight: 600;
-            line-height: 1.4;
-        }
-
-        .narrative-footer {
-            margin-top: 4px;
-        }
-
-        .narrative-start-btn {
-            width: 100%;
-            padding: 12px 18px;
-            border: none;
-            border-radius: 16px;
-            background: linear-gradient(135deg, var(--accent-lavender), #7C68BF);
-            color: white;
-            font-size: 13.5px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 4px 14px rgba(108, 90, 166, 0.28);
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
-        .narrative-start-btn:hover {
-            transform: translateY(-1.5px);
-            box-shadow: 0 6px 18px rgba(108, 90, 166, 0.35);
-        }
-
-        .narrative-start-btn:active {
-            transform: scale(0.985);
-        }
-
-        /* Modal Overlay & Card */
-        .modal-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.45);
-            backdrop-filter: blur(3px);
-            z-index: 1000;
-            display: flex;
-            align-items: flex-end;
-            border-radius: inherit;
-            animation: fadeIn 0.2s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-card {
-            background: white;
-            width: 100%;
-            max-height: 85%;
-            border-top-left-radius: 24px;
-            border-top-right-radius: 24px;
-            padding: 18px 16px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
-            animation: slideUp 0.25s ease-out;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-            color: var(--text-muted);
-            padding: 4px;
-        }
-
-        .scenario-list {
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 9px;
-            padding-right: 2px;
-            max-height: 380px;
-        }
-
-        .scenario-item-btn {
-            background: #FAF8F5;
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 10px 12px;
-            text-align: left;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .scenario-item-btn:hover {
-            background: #F4EFE6;
-            border-color: var(--accent-lavender);
-            transform: translateY(-1px);
-        }
-
-        .scenario-item-btn.random-btn {
-            background: linear-gradient(135deg, #F5F3FF, #EDE9FE);
-            border-color: #DDD6FE;
-        }
-
-        @keyframes moodPop {
-            0% { transform: scale(0.92); opacity: 0.85; }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); opacity: 1; }
+        .bubble-user .quoted-text {
+            color: rgba(255, 255, 255, 0.8);
         }
 
         /* Reply preview bar above input */
         .reply-preview-bar {
-            padding: 8px 14px;
+            max-width: 840px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 8px 18px;
             background: #F8F5EE;
             border-top: 1px solid var(--border);
+            border-radius: 12px 12px 0 0;
             display: flex;
             align-items: center;
             gap: 10px;
             animation: slideUp 0.18s ease-out;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(6px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
         }
 
         .reply-bar-indicator {
@@ -805,71 +780,541 @@
             }
         }
 
-        /* Chat input */
-        .input-bar {
-            padding: 12px 16px;
-            background: white;
+        /* Chat Input Bar */
+        .input-bar-container {
+            background: #FFFFFF;
             border-top: 1px solid var(--border);
+            padding: 14px 24px;
+            padding-bottom: max(14px, env(safe-area-inset-bottom));
+        }
+
+        .input-bar {
+            max-width: 840px;
+            margin: 0 auto;
+            width: 100%;
             display: flex;
+            align-items: center;
             gap: 10px;
         }
 
         .input-bar input {
             flex: 1;
-            padding: 12px 18px;
-            border-radius: 24px;
+            padding: 13px 22px;
+            border-radius: 28px;
             border: 1px solid var(--border);
             outline: none;
-            font-size: 13px;
+            font-size: 14px;
             background: #FDFBF8;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
         }
 
         .input-bar input:focus {
             border-color: var(--accent-lavender);
+            background: #FFFFFF;
+            box-shadow: 0 0 0 3px rgba(157, 140, 215, 0.15);
         }
 
         .input-bar button {
             background: var(--accent-lavender);
             color: white;
             border: none;
-            padding: 0 18px;
-            border-radius: 20px;
-            font-weight: 600;
+            padding: 12px 22px;
+            border-radius: 24px;
+            font-weight: 700;
             font-size: 13px;
             cursor: pointer;
-            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(157, 140, 215, 0.3);
+            flex-shrink: 0;
         }
 
         .input-bar button:hover {
-            opacity: 0.9;
+            background: #8977C6;
+            transform: translateY(-1px);
         }
 
-        .input-bar button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(28, 25, 38, 0.45);
+            backdrop-filter: blur(2px);
+            z-index: 990;
+        }
+
+        /* Modal Overlay & Dialogs */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(28, 25, 38, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease-out;
+            padding: 16px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(12px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-card {
+            background: white;
+            width: 100%;
+            max-width: 480px;
+            max-height: 88vh;
+            border-radius: 24px;
+            padding: 22px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(44, 42, 54, 0.2);
+            animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid var(--border);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 6px;
+            border-radius: 8px;
+        }
+
+        .modal-close:hover {
+            color: var(--text-main);
+            background: #F4EFE6;
+        }
+
+        .scenario-list {
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            padding-right: 2px;
+            max-height: 380px;
+        }
+
+        .scenario-item-btn {
+            background: #FAF8F5;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 12px 14px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .scenario-item-btn:hover {
+            background: #F4EFE6;
+            border-color: var(--accent-lavender);
+            transform: translateY(-1px);
+        }
+
+        .scenario-item-btn.random-btn {
+            background: linear-gradient(135deg, #F5F3FF, #EDE9FE);
+            border-color: #DDD6FE;
+        }
+
+        .scenario-badge {
+            font-size: 9.5px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .badge-initiator-aura {
+            background: #EDE9FE;
+            color: #5B21B6;
+            border: 1px solid #DDD6FE;
+        }
+
+        .badge-initiator-user {
+            background: #ECFDF5;
+            color: #065F46;
+            border: 1px solid #A7F3D0;
+        }
+
+        /* Narrative Prologue Modal */
+        .narrative-card {
+            background: #FFFFFF;
+            max-height: 90vh;
+            border: 1px solid #EDE6DC;
+            padding: 22px 20px 20px;
+            position: relative;
+        }
+
+        .narrative-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .narrative-badge-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #F7F4EE;
+            border: 1px solid #EAE2D5;
+            color: #7A7265;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 8px;
+        }
+
+        .narrative-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .narrative-icon-wrap {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #F5F0FF, #EDE6FB);
+            border: 1px solid #E0D4F7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(157, 140, 215, 0.15);
+        }
+
+        .narrative-title-group {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .narrative-title-group h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .narrative-subtitle {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-sub);
+        }
+
+        .narrative-scroll-area {
+            overflow-y: auto;
+            max-height: 380px;
+            padding-right: 2px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .narrative-story-box {
+            background: linear-gradient(180deg, #FDFCF9 0%, #F9F5EC 100%);
+            border: 1px solid #ECE2D2;
+            border-radius: 16px;
+            padding: 14px 16px;
+            position: relative;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.8), 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        .narrative-quote-decor {
+            position: absolute;
+            top: 6px;
+            right: 12px;
+            font-size: 46px;
+            line-height: 1;
+            font-family: Georgia, serif;
+            color: rgba(157, 140, 215, 0.18);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .narrative-body-text {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #383445;
+            position: relative;
+            z-index: 1;
+        }
+
+        .narrative-body-text p {
+            margin-bottom: 10px;
+        }
+
+        .narrative-body-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        .narrative-action-box {
+            background: #F5F3FF;
+            border: 1px solid #DDD6FE;
+            border-radius: 13px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .narrative-action-icon {
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .narrative-action-text {
+            font-size: 11.5px;
+            color: #5B21B6;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .narrative-footer {
+            margin-top: 4px;
+        }
+
+        .narrative-start-btn {
+            width: 100%;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--accent-lavender), #7C68BF);
+            color: white;
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(108, 90, 166, 0.28);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .narrative-start-btn:hover {
+            transform: translateY(-1.5px);
+            box-shadow: 0 6px 18px rgba(108, 90, 166, 0.35);
+        }
+
+        .narrative-start-btn:active {
+            transform: scale(0.985);
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 880px) {
+            .app-sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: 84%;
+                max-width: 350px;
+                background: #FFFFFF;
+                z-index: 1000;
+                box-shadow: 6px 0 30px rgba(0,0,0,0.18);
+                transform: translateX(-105%);
+                transition: transform 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .app-sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-backdrop.open {
+                display: block;
+            }
+
+            .sidebar-close-btn {
+                display: block;
+            }
+
+            .mobile-menu-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .chat-header {
+                padding: 10px 14px;
+                height: 58px;
+            }
+
+            .content-scroll {
+                padding: 14px 12px;
+            }
+
+            .input-bar-container {
+                padding: 10px 14px;
+                padding-bottom: max(10px, env(safe-area-inset-bottom));
+            }
+
+            .input-bar input {
+                padding: 11px 16px;
+                font-size: 13px;
+            }
+
+            .input-bar button {
+                padding: 11px 18px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .modal-overlay {
+                align-items: flex-end;
+                padding: 0;
+            }
+
+            .modal-card {
+                max-width: 100%;
+                border-bottom-left-radius: 0;
+                border-bottom-right-radius: 0;
+                max-height: 90dvh;
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="phone-mockup">
-    <!-- Header -->
-    <div class="phone-header">
-        <div class="aura-title">
-            <div class="aura-avatar">
-                <img src="/assets/characters/aura_master_reference.jpg" alt="AURA">
+<div class="app-layout">
+    <!-- Mobile Backdrop for Sidebar Drawer -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="toggleSidebar(false)"></div>
+
+    <!-- Left Sidebar: AURA Virtual Life Hub & Profile -->
+    <aside class="app-sidebar" id="app-sidebar">
+        <div class="sidebar-top">
+            <div class="sidebar-brand">
+                <span class="brand-sparkle">✨</span>
+                <span class="brand-name">AURA</span>
+                <span class="brand-sub">Virtual Life Companion</span>
             </div>
-            <div>
-                <h4 style="font-size: 15px; font-weight: 700;">AURA</h4>
-                <div style="font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 5px;">
-                    <span class="status-dot" id="header-status-dot"></span> <span id="header-status-text">Virtual Life Online</span>
+            <button type="button" class="sidebar-close-btn" onclick="toggleSidebar(false)" title="Tutup Menu">✕</button>
+        </div>
+
+        <div class="sidebar-scroll">
+            <!-- AURA Character Card -->
+            <div class="character-profile-card">
+                <div class="character-avatar-wrap">
+                    <img src="/assets/characters/aura_master_reference.jpg" alt="AURA" class="character-avatar-img">
+                    <span class="online-indicator-dot" id="sidebar-status-dot" title="AURA Sedang Online"></span>
+                </div>
+                <div class="character-info">
+                    <h3 class="character-name">AURA</h3>
+                    <p class="character-tagline">Teman Virtual Hidup Nyata</p>
+                    <div class="character-badges">
+                        <div class="stage-pill" id="aura-stage-pill" title="Tahap Hubungan dengan AURA">
+                            <span id="aura-stage-emoji">🌱</span>
+                            <span id="aura-stage-label">Baru Kenal</span>
+                        </div>
+                        <div class="mood-pill" id="aura-mood-pill" title="Suasana hati AURA saat ini">
+                            <span id="aura-mood-emoji">✨</span>
+                            <span id="aura-mood-label">Tenang & Santai</span>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <!-- Virtual Life Status Card -->
+            <div class="status-card" id="status-box">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span class="badge-live" id="badge-status">Sedang Beraktivitas</span>
+                    <span class="clock-chip" id="local-clock">--:-- WIB</span>
+                </div>
+                <h4 class="act-name" id="act-title">Memuat status AURA...</h4>
+                <div class="act-location">
+                    <span>📍</span> <span id="act-loc">Memeriksa lokasi...</span>
+                </div>
+                <p id="act-desc" style="font-size: 12.5px; color: var(--text-sub); line-height: 1.45; margin-bottom: 12px;"></p>
+                <div class="time-badge">
+                    <span id="act-next">Rencana selanjutnya: ...</span>
+                </div>
+            </div>
+
+            <!-- Active Scenario Info Card in Sidebar -->
+            <div class="sidebar-scenario-box" id="sidebar-scenario-box">
+                <div class="sidebar-scenario-header">
+                    <span class="sidebar-scenario-kicker">SKENARIO AKTIF</span>
+                    <button type="button" class="sidebar-story-link" onclick="openCurrentNarrativeModal()">📖 Baca Kisah</button>
+                </div>
+                <div class="sidebar-scenario-title" id="sidebar-scenario-title">🌱 Perkenalan Santai</div>
+                <p class="sidebar-scenario-premise" id="sidebar-scenario-premise">Memuat skenario...</p>
+            </div>
         </div>
-        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
-            <div style="display: flex; align-items: center; gap: 6px;">
+
+        <div class="sidebar-footer">
+            <button type="button" class="sidebar-action-btn primary" onclick="openScenarioModal()">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                    <path d="M3 3v5h5"/>
+                </svg>
+                <span>Mulai Obrolan Baru</span>
+            </button>
+            <button type="button" class="sidebar-action-btn secondary" onclick="openCurrentNarrativeModal()">
+                <span>📖 Prolog Skenario</span>
+            </button>
+            <div class="sidebar-caption">
+                <span>Powered by Gemini 2.5 • Continuous Life Engine</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Chat Work Area -->
+    <main class="app-main-chat">
+        <!-- Chat Header -->
+        <header class="chat-header">
+            <div class="chat-header-left" onclick="toggleSidebar(true)">
+                <button type="button" class="mobile-menu-btn" onclick="event.stopPropagation(); toggleSidebar(true)" title="Buka Profil & Status AURA">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+                <div class="chat-header-avatar">
+                    <img src="/assets/characters/aura_master_reference.jpg" alt="AURA">
+                    <span class="header-avatar-dot"></span>
+                </div>
+                <div class="chat-header-titles">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <h2 class="chat-header-name">AURA</h2>
+                        <span class="online-tag">Online</span>
+                    </div>
+                    <div class="chat-header-activity" id="chat-header-activity">
+                        <span id="header-status-dot" class="status-dot"></span>
+                        <span id="header-status-text">Virtual Life Online</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-header-right">
                 <button type="button" class="header-action-btn" onclick="openCurrentNarrativeModal()" title="Lihat Cerita Prolog Skenario" id="header-story-btn">
-                    <span style="font-size: 11px;">📖</span>
+                    <span style="font-size: 12px;">📖</span>
                     <span>Kisah</span>
                 </button>
                 <button type="button" class="header-action-btn" onclick="openScenarioModal()" title="Mulai obrolan baru dengan skenario pilihan">
@@ -879,67 +1324,46 @@
                     </svg>
                     <span>Mulai Baru</span>
                 </button>
-                <div id="local-clock" style="font-size: 11px; font-weight: 600; color: var(--text-sub);">
-                    --:-- WIB
-                </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 4px;">
-                <div class="stage-pill" id="aura-stage-pill" title="Tahap Hubungan dengan AURA">
-                    <span id="aura-stage-emoji">🌱</span>
-                    <span id="aura-stage-label">Baru Kenal</span>
-                </div>
-                <div class="mood-pill" id="aura-mood-pill" title="Suasana hati AURA saat ini">
-                    <span id="aura-mood-emoji">✨</span>
-                    <span id="aura-mood-label">Tenang & Santai</span>
-                </div>
-            </div>
-        </div>
-    </div>
+        </header>
 
-    <!-- Scrollable content -->
-    <div class="content-scroll" id="content-scroll">
-        <!-- Live Status Widget -->
-        <div class="status-card" id="status-box">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <span class="badge-live" id="badge-status">Sedang Beraktivitas</span>
-            </div>
-            <h3 class="act-name" id="act-title">Memuat status AURA...</h3>
-            <div class="act-location">
-                <span>📍</span> <span id="act-loc">Memeriksa lokasi...</span>
-            </div>
-            <p id="act-desc" style="font-size: 12.5px; color: var(--text-sub); line-height: 1.4; margin-bottom: 12px;"></p>
-            <div class="time-badge">
-                <span id="act-next">Rencana selanjutnya: ...</span>
+        <!-- Chat Message Scroll Stream -->
+        <div class="content-scroll" id="content-scroll">
+            <div class="chat-container" id="chat-box">
+                <!-- Messages rendered dynamically from persistent SQLite database -->
             </div>
         </div>
 
-        <!-- Chat bubble area -->
-        <div class="chat-container" id="chat-box">
-            <!-- Messages rendered dynamically from persistent SQLite database -->
+        <!-- Reply Preview Bar -->
+        <div class="reply-preview-bar" id="reply-preview-bar" style="display: none;">
+            <div class="reply-bar-indicator"></div>
+            <div class="reply-bar-body">
+                <div class="reply-bar-author" id="reply-bar-author">Membalas AURA</div>
+                <div class="reply-bar-snippet" id="reply-bar-snippet">...</div>
+            </div>
+            <button type="button" class="reply-bar-close" onclick="cancelReply()" title="Batal balas">✕</button>
         </div>
-    </div>
 
-    <!-- Reply preview bar -->
-    <div class="reply-preview-bar" id="reply-preview-bar" style="display: none;">
-        <div class="reply-bar-indicator"></div>
-        <div class="reply-bar-body">
-            <div class="reply-bar-author" id="reply-bar-author">Membalas AURA</div>
-            <div class="reply-bar-snippet" id="reply-bar-snippet">...</div>
+        <!-- Chat Input Bar -->
+        <div class="input-bar-container">
+            <form class="input-bar" id="chat-form" onsubmit="handleSend(event)">
+                <input type="text" id="chat-input" placeholder="Ketik pesan untuk AURA..." autocomplete="off">
+                <button type="submit" id="chat-send-btn">
+                    <span>Kirim</span>
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </form>
         </div>
-        <button type="button" class="reply-bar-close" onclick="cancelReply()" title="Batal balas">✕</button>
-    </div>
-
-    <!-- Input bar -->
-    <form class="input-bar" id="chat-form" onsubmit="handleSend(event)">
-        <input type="text" id="chat-input" placeholder="Ketik pesan untuk AURA..." autocomplete="off">
-        <button type="submit" id="chat-send-btn">Kirim</button>
-    </form>
+    </main>
 
     <!-- Scenario Selection Modal -->
     <div class="modal-overlay" id="scenario-modal" style="display: none;" onclick="if(event.target === this) closeScenarioModal()">
         <div class="modal-card">
             <div class="modal-header">
-                <h4 style="font-size: 15px; font-weight: 700; color: var(--text-main); margin: 0;">Mulai Obrolan Baru</h4>
+                <h4 style="font-size: 16px; font-weight: 700; color: var(--text-main); margin: 0;">Mulai Obrolan Baru</h4>
                 <button type="button" class="modal-close" onclick="closeScenarioModal()">✕</button>
             </div>
             <p style="font-size: 12px; color: var(--text-sub); margin: 6px 0 14px 0; line-height: 1.4;">
@@ -1058,19 +1482,36 @@
     let currentReply = null;
     let activeReplyForBatch = null;
 
+    // Mobile Sidebar Drawer Controller
+    function toggleSidebar(open) {
+        const sidebar = document.getElementById('app-sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
+        if (!sidebar) return;
+        if (open === undefined) {
+            open = !sidebar.classList.contains('open');
+        }
+        if (open) {
+            sidebar.classList.add('open');
+            if (backdrop) backdrop.classList.add('open');
+        } else {
+            sidebar.classList.remove('open');
+            if (backdrop) backdrop.classList.remove('open');
+        }
+    }
+
     function getMoodPacing(mood) {
         switch (mood) {
             case 'happy':
                 return {
-                    readDelay: 2000,        // 2 detik (excited!)
+                    readDelay: 2000,
                     unreadDelay: 0,
                     minTyping: 1200,
                     charSpeed: 18,
-                    idleProactiveTime: 25000 // 25 detik hening -> inisiatif chat duluan
+                    idleProactiveTime: 25000
                 };
             case 'curious':
                 return {
-                    readDelay: 2200,        // 2.2 detik (kepo!)
+                    readDelay: 2200,
                     unreadDelay: 0,
                     minTyping: 1300,
                     charSpeed: 20,
@@ -1078,258 +1519,129 @@
                 };
             case 'shy':
                 return {
-                    readDelay: 2500,        // 2.5 detik (salting & penasaran)
+                    readDelay: 2500,
                     unreadDelay: 0,
                     minTyping: 1400,
                     charSpeed: 22,
                     idleProactiveTime: 30000
                 };
-            case 'concerned':
+            case 'sulking':
                 return {
-                    readDelay: 3500,        // 3.5 detik (gercep perhatian)
-                    unreadDelay: 0,
-                    minTyping: 1500,
-                    charSpeed: 24,
-                    idleProactiveTime: 0
-                };
-            case 'peaceful':
-                return {
-                    readDelay: 4500,        // 4.5 detik (santai wajar)
-                    unreadDelay: 0,
+                    readDelay: 10000,
+                    unreadDelay: 6000,
                     minTyping: 1800,
                     charSpeed: 28,
-                    idleProactiveTime: 0
+                    idleProactiveTime: null
+                };
+            case 'concerned':
+                return {
+                    readDelay: 2500,
+                    unreadDelay: 0,
+                    minTyping: 1400,
+                    charSpeed: 20,
+                    idleProactiveTime: 28000
                 };
             case 'sleepy':
                 return {
-                    readDelay: 6500,        // 6.5 detik (ngantuk, lemes)
-                    unreadDelay: 2200,      // 2.2 detik telat buka chat
-                    minTyping: 2200,
-                    charSpeed: 35,
-                    idleProactiveTime: 0
+                    readDelay: 6000,
+                    unreadDelay: 3000,
+                    minTyping: 1600,
+                    charSpeed: 30,
+                    idleProactiveTime: null
                 };
-            case 'sulking':
+            case 'melancholic':
                 return {
-                    readDelay: 8500,        // 8.5 detik (ngambek, sengaja lama!)
-                    unreadDelay: 4500,      // 4.5 detik pura-pura belum buka chat (tetap abu-abu)
-                    minTyping: 2500,
-                    charSpeed: 38,
-                    idleProactiveTime: 0     // cewek ngambek gak bakal chat duluan!
+                    readDelay: 5000,
+                    unreadDelay: 2000,
+                    minTyping: 1600,
+                    charSpeed: 26,
+                    idleProactiveTime: 35000
                 };
+            case 'peaceful':
             default:
                 return {
-                    readDelay: 4500,
+                    readDelay: 3000,
                     unreadDelay: 0,
-                    minTyping: 1800,
-                    charSpeed: 28,
-                    idleProactiveTime: 0
+                    minTyping: 1400,
+                    charSpeed: 22,
+                    idleProactiveTime: 30000
                 };
         }
     }
 
     function setHeaderStatus(text, isTyping = false) {
-        const textEl = document.getElementById('header-status-text');
-        const dotEl = document.getElementById('header-status-dot');
-        if (textEl) textEl.innerText = text;
-        if (dotEl) {
-            dotEl.style.backgroundColor = isTyping ? 'var(--accent-lavender)' : 'var(--accent-sage)';
+        const dot = document.getElementById('header-status-dot');
+        const label = document.getElementById('header-status-text');
+        if (!label) return;
+        label.innerText = text;
+        if (dot) {
+            dot.style.display = 'inline-block';
+            dot.style.backgroundColor = isTyping ? '#9D8CD7' : '#52B788';
         }
     }
 
-    function markAllTicksAsRead() {
-        unreadTickIds.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                el.dataset.read = "true";
-                el.innerHTML = getDoubleTickSvg(true);
-            }
-        });
-        unreadTickIds.length = 0;
-    }
-
-    // Reply trigger from button or double-click
-    function startReply(btn) {
-        const wrap = btn.closest('.bubble-wrap');
-        if (!wrap) return;
-        const bubble = wrap.querySelector('.bubble');
-        if (bubble) startReplyFromBubble(bubble);
-    }
-
-    function startReplyFromBubble(bubble) {
-        const isUser = bubble.classList.contains('bubble-user');
-        const author = isUser ? 'Kamu' : 'AURA';
-        const textEl = bubble.querySelector('.bubble-text-content');
-        const text = textEl ? textEl.innerText.trim() : bubble.innerText.trim();
-
-        currentReply = { sender: author, content: text };
-
-        document.getElementById('reply-bar-author').innerText = 'Membalas ' + author;
-        document.getElementById('reply-bar-snippet').innerText = text;
-        document.getElementById('reply-preview-bar').style.display = 'flex';
-
-        const input = document.getElementById('chat-input');
-        input.placeholder = 'Ketik balasan untuk ' + author + '...';
-        input.focus();
-    }
-
-    function cancelReply() {
-        currentReply = null;
-        document.getElementById('reply-preview-bar').style.display = 'none';
-        const input = document.getElementById('chat-input');
-        input.placeholder = 'Ketik pesan untuk AURA...';
-    }
-
-    // Listener while user is typing in the input box
-    function handleInputActivity() {
-        const input = document.getElementById('chat-input');
-        const hasText = input.value.trim().length > 0;
-
-        stopProactiveTimer();
-        hasProactedThisSession = false;
-
-        userIsTyping = true;
-        clearTimeout(userTypingTimer);
-        clearTimeout(silenceTimer);
-
-        if (hasText) {
-            // User is actively typing! Hold off AURA from reading:
-            if (!isAuraProcessing) {
-                if (isAuraReading) {
-                    clearTimeout(readPhaseTimer);
-                    clearTimeout(unreadHoldTimer);
-                    isAuraReading = false;
-                }
-                setHeaderStatus('Virtual Life Online');
-            }
-        }
-
-        userTypingTimer = setTimeout(() => {
-            userIsTyping = false;
-            if (pendingUserMessages.length > 0 && !isAuraProcessing && !isAuraReading) {
-                checkSilenceAndRead();
-            } else if (pendingUserMessages.length === 0 && !isAuraProcessing && !isAuraReading) {
-                resetProactiveTimer();
-            }
-        }, 1100);
-    }
-
-    function checkSilenceAndRead() {
-        clearTimeout(silenceTimer);
-        const input = document.getElementById('chat-input');
-        if (input.value.trim().length > 0 || userIsTyping) {
-            return; // User is still typing
-        }
-
-        // Wait 1200ms of silence before AURA starts reading
-        silenceTimer = setTimeout(() => {
-            const currentVal = document.getElementById('chat-input').value.trim();
-            if (currentVal.length === 0 && !userIsTyping && pendingUserMessages.length > 0 && !isAuraProcessing && !isAuraReading) {
-                startReadingPhase();
-            }
-        }, 1200);
-    }
-
-    function startReadingPhase() {
-        if (isAuraProcessing || isAuraReading || pendingUserMessages.length === 0) return;
-
-        isAuraReading = true;
-        clearTimeout(readPhaseTimer);
-        clearTimeout(unreadHoldTimer);
-        stopProactiveTimer();
-
-        const pacing = getMoodPacing(currentAuraMood);
-
-        if (pacing.unreadDelay > 0) {
-            // Unread hold (e.g. sulking or sleepy): hold as grey ticks for unreadDelay ms!
-            setHeaderStatus(currentAuraMood === 'sulking' ? 'AURA belum membuka chat...' : 'AURA online...');
-            unreadHoldTimer = setTimeout(() => {
-                if (!isAuraReading) return;
-                markAllTicksAsRead();
-                setHeaderStatus('Membaca pesan...');
-
-                const remainingReadTime = Math.max(1500, pacing.readDelay - pacing.unreadDelay);
-                readPhaseTimer = setTimeout(() => {
-                    isAuraReading = false;
-                    triggerAuraResponse();
-                }, remainingReadTime);
-            }, pacing.unreadDelay);
-        } else {
-            // Immediate read & blue ticks
-            markAllTicksAsRead();
-            setHeaderStatus('Membaca pesan...');
-
-            readPhaseTimer = setTimeout(() => {
-                isAuraReading = false;
-                triggerAuraResponse();
-            }, pacing.readDelay);
-        }
-    }
-
-    // Natural Emotion / Mood Presentation
     function updateMoodDisplay(moodObj) {
         if (!moodObj) return;
         currentAuraMood = moodObj.value || 'peaceful';
-        const emojiEl = document.getElementById('aura-mood-emoji');
         const labelEl = document.getElementById('aura-mood-label');
+        const emojiEl = document.getElementById('aura-mood-emoji');
         const pillEl = document.getElementById('aura-mood-pill');
 
-        if (emojiEl) emojiEl.innerText = moodObj.emoji || '✨';
         if (labelEl) labelEl.innerText = moodObj.label || 'Tenang & Santai';
+        if (emojiEl) emojiEl.innerText = moodObj.emoji || '✨';
 
         if (pillEl) {
-            pillEl.classList.remove('pop');
-            void pillEl.offsetWidth; // trigger reflow
-            pillEl.classList.add('pop');
+            pillEl.style.animation = 'none';
+            void pillEl.offsetWidth;
+            pillEl.style.animation = 'moodPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+
             if (moodObj.value === 'sulking') {
                 pillEl.style.background = '#FEE2E2';
                 pillEl.style.borderColor = '#FCA5A5';
-                pillEl.style.color = '#991B1B';
+                pillEl.style.color = '#B91C1C';
+                pillEl.title = 'AURA sedang ngambek: lama baca & slow response';
+            } else if (moodObj.value === 'sleepy') {
+                pillEl.style.background = '#E2E8F0';
+                pillEl.style.borderColor = '#CBD5E1';
+                pillEl.style.color = '#475569';
+                pillEl.title = 'AURA sedang mengantuk: respon lambat & santai';
+            } else if (moodObj.value === 'happy') {
+                pillEl.style.background = '#FEF3C7';
+                pillEl.style.borderColor = '#FDE68A';
+                pillEl.style.color = '#92400E';
+                pillEl.title = 'AURA sedang senang: fast response & antusias!';
+            } else if (moodObj.value === 'curious') {
+                pillEl.style.background = '#E0F2FE';
+                pillEl.style.borderColor = '#BAE6FD';
+                pillEl.style.color = '#0369A1';
+                pillEl.title = 'AURA sedang kepo: penasaran & excited!';
             } else if (moodObj.value === 'shy') {
                 pillEl.style.background = '#FCE7F3';
                 pillEl.style.borderColor = '#FBCFE8';
                 pillEl.style.color = '#9D174D';
-            } else if (moodObj.value === 'happy') {
-                pillEl.style.background = '#FEF3C7';
-                pillEl.style.borderColor = '#FCD34D';
-                pillEl.style.color = '#92400E';
-            } else if (moodObj.value === 'concerned') {
-                pillEl.style.background = '#E0F2FE';
-                pillEl.style.borderColor = '#BAE6FD';
-                pillEl.style.color = '#075985';
-            } else if (moodObj.value === 'curious') {
-                pillEl.style.background = '#EDE9FE';
+                pillEl.title = 'AURA sedang tersipu / malu-malu kucing';
+            } else {
+                pillEl.style.background = 'var(--accent-lavender-light)';
                 pillEl.style.borderColor = '#DDD6FE';
                 pillEl.style.color = '#5B21B6';
-            } else if (moodObj.value === 'sleepy') {
-                pillEl.style.background = '#F1F5F9';
-                pillEl.style.borderColor = '#CBD5E1';
-                pillEl.style.color = '#475569';
-            } else {
-                pillEl.style.background = '#F4EFE6';
-                pillEl.style.borderColor = 'var(--border)';
-                pillEl.style.color = 'var(--text-main)';
+                pillEl.title = 'Suasana hati AURA saat ini';
             }
-        }
-
-        if (!isAuraProcessing && !isAuraReading && pendingUserMessages.length === 0) {
-            resetProactiveTimer();
         }
     }
 
-    // Dynamic Relationship Stage Presentation
     function updateStageDisplay(stageObj) {
         if (!stageObj) return;
-        const emojiEl = document.getElementById('aura-stage-emoji');
         const labelEl = document.getElementById('aura-stage-label');
+        const emojiEl = document.getElementById('aura-stage-emoji');
         const pillEl = document.getElementById('aura-stage-pill');
 
-        if (emojiEl) emojiEl.innerText = stageObj.emoji || '🌱';
         if (labelEl) labelEl.innerText = stageObj.label || 'Baru Kenal';
+        if (emojiEl) emojiEl.innerText = stageObj.emoji || '🌱';
 
         if (pillEl) {
-            pillEl.classList.remove('pop');
-            void pillEl.offsetWidth; // trigger reflow
-            pillEl.classList.add('pop');
+            pillEl.style.animation = 'none';
+            void pillEl.offsetWidth;
+            pillEl.style.animation = 'moodPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
 
             if (stageObj.value === 'first_meeting') {
                 pillEl.style.background = '#ECFDF5';
@@ -1340,7 +1652,7 @@
                 pillEl.style.background = '#E0F2FE';
                 pillEl.style.borderColor = '#BAE6FD';
                 pillEl.style.color = '#0369A1';
-                pillEl.title = 'Tahap: Mulai Akrab — AURA sudah tau nama & mulai nyaman';
+                pillEl.title = 'Tahap: Mulai Akrab — AURA sudah tahu nama & mulai nyaman';
             } else if (stageObj.value === 'close_friend') {
                 pillEl.style.background = '#F3E8FF';
                 pillEl.style.borderColor = '#D8B4FE';
@@ -1350,11 +1662,20 @@
         }
     }
 
-    // Render scenario premise banner
-    // Keep active scenario in state
+    // Keep active scenario in state & update sidebar card
     function renderScenarioBanner(scenario) {
         if (!scenario) return;
         currentScenario = scenario;
+
+        const sideTitle = document.getElementById('sidebar-scenario-title');
+        const sidePremise = document.getElementById('sidebar-scenario-premise');
+
+        if (sideTitle) {
+            sideTitle.innerText = (scenario.icon ? scenario.icon + ' ' : '') + (scenario.title || 'Skenario Pertemuan');
+        }
+        if (sidePremise) {
+            sidePremise.innerText = scenario.premise || '';
+        }
 
         const input = document.getElementById('chat-input');
         if (input) {
@@ -1574,10 +1895,10 @@
         listEl.innerHTML = `
             <button type="button" class="scenario-item-btn random-btn" onclick="selectScenario(null)">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <b style="font-size: 12.5px; color: #5B21B6;">🎲 Pilih Acak (Surprise Me)</b>
+                    <b style="font-size: 13px; color: #5B21B6;">🎲 Pilih Acak (Surprise Me)</b>
                     <span class="scenario-badge" style="background: #DDD6FE; color: #4C1D95;">Random</span>
                 </div>
-                <div style="font-size: 11px; color: #6D28D9;">Sistem akan memilihkan skenario pertemuan unik secara acak!</div>
+                <div style="font-size: 11.5px; color: #6D28D9;">Sistem akan memilihkan skenario pertemuan unik secara acak!</div>
             </button>
         `;
 
@@ -1592,10 +1913,10 @@
             item.onclick = () => selectScenario(s.id);
             item.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <b style="font-size: 12px; color: var(--text-main);">${escapeHtml(s.icon)} ${escapeHtml(s.title)}</b>
+                    <b style="font-size: 12.5px; color: var(--text-main);">${escapeHtml(s.icon)} ${escapeHtml(s.title)}</b>
                     <span class="scenario-badge ${badgeClass}">${badgeText}</span>
                 </div>
-                <div style="font-size: 11px; color: var(--text-sub); line-height: 1.35;">${escapeHtml(s.premise)}</div>
+                <div style="font-size: 11.5px; color: var(--text-sub); line-height: 1.4;">${escapeHtml(s.premise)}</div>
             `;
             listEl.appendChild(item);
         });
@@ -1608,6 +1929,7 @@
 
     async function selectScenario(scenarioId) {
         closeScenarioModal();
+        toggleSidebar(false);
 
         try {
             const res = await fetch('/api/v1/simulator/reset', {
@@ -1657,16 +1979,34 @@
                 const cur = json.data.current_activity;
                 const charTime = new Date(json.data.virtual_time.character_local);
                 
-                document.getElementById('local-clock').innerText = charTime.getHours().toString().padStart(2, '0') + ':' + charTime.getMinutes().toString().padStart(2, '0') + ' WIB';
+                const clockText = charTime.getHours().toString().padStart(2, '0') + ':' + charTime.getMinutes().toString().padStart(2, '0') + ' WIB';
+                const clockEl = document.getElementById('local-clock');
+                if (clockEl) clockEl.innerText = clockText;
 
                 if (cur) {
-                    document.getElementById('act-title').innerText = cur.name;
-                    document.getElementById('act-loc').innerText = (cur.location ? cur.location.name : 'Kamar AURA');
-                    document.getElementById('act-desc').innerText = cur.description || 'Sedang menikmati rutinitas harian dengan tenang.';
-                    document.getElementById('badge-status').innerText = (cur.mood_presentation ? 'Mood: ' + cur.mood_presentation : 'Aktif');
+                    const titleEl = document.getElementById('act-title');
+                    const locEl = document.getElementById('act-loc');
+                    const descEl = document.getElementById('act-desc');
+                    const badgeEl = document.getElementById('badge-status');
+                    const nextEl = document.getElementById('act-next');
+                    const headerActEl = document.getElementById('chat-header-activity');
+
+                    const locName = (cur.location ? cur.location.name : 'Kamar AURA');
+
+                    if (titleEl) titleEl.innerText = cur.name;
+                    if (locEl) locEl.innerText = locName;
+                    if (descEl) descEl.innerText = cur.description || 'Sedang menikmati rutinitas harian dengan tenang.';
+                    if (badgeEl) badgeEl.innerText = (cur.mood_presentation ? 'Mood: ' + cur.mood_presentation : 'Aktif');
                     
-                    if (json.data.next_planned_activity) {
-                        document.getElementById('act-next').innerText = 'Selanjutnya: ' + json.data.next_planned_activity.name;
+                    if (nextEl && json.data.next_planned_activity) {
+                        nextEl.innerText = 'Selanjutnya: ' + json.data.next_planned_activity.name;
+                    }
+
+                    if (headerActEl && !isAuraProcessing && !isAuraReading) {
+                        headerActEl.innerHTML = `
+                            <span id="header-status-dot" class="status-dot"></span>
+                            <span id="header-status-text">📍 ${escapeHtml(locName)} • ${escapeHtml(cur.name)}</span>
+                        `;
                     }
                 }
             }
@@ -1675,37 +2015,22 @@
         }
     }
 
-    async function handleSend(e) {
-        e.preventDefault();
-
-        const input = document.getElementById('chat-input');
-        const text = input.value.trim();
-        if (!text) return;
-
+    function appendUserBubbleImmediate(text, isFirstInBatch = false) {
         const chatBox = document.getElementById('chat-box');
         const scroll = document.getElementById('content-scroll');
+        const time = getTimeString();
+        const tickId = 'tick-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
 
-        // Remove empty state hint if present
-        const emptyHint = document.getElementById('empty-chat-hint');
-        if (emptyHint) {
-            emptyHint.remove();
-        }
-
-        // Check if there is an active quoted reply
         let quotedHtml = '';
-        if (currentReply) {
+        if (isFirstInBatch && activeReplyForBatch && activeReplyForBatch.content) {
             quotedHtml = `
                 <div class="quoted-box">
-                    <div class="quoted-author">${escapeHtml(currentReply.sender)}</div>
-                    <div class="quoted-text">${escapeHtml(currentReply.content)}</div>
+                    <div class="quoted-author">${escapeHtml(activeReplyForBatch.sender || 'AURA')}</div>
+                    <div class="quoted-text">${escapeHtml(activeReplyForBatch.content)}</div>
                 </div>
             `;
-            activeReplyForBatch = { ...currentReply };
-            cancelReply();
         }
 
-        // Create user bubble wrapped in bubble-wrap
-        const tickId = 'tick-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
         const wrap = document.createElement('div');
         wrap.className = 'bubble-wrap bubble-wrap-user';
         wrap.innerHTML = `
@@ -1719,174 +2044,49 @@
                 ${quotedHtml}
                 <div class="bubble-text-content">${escapeHtml(text)}</div>
                 <div class="bubble-meta">
-                    <span>${getTimeString()}</span>
+                    <span>${time}</span>
                     <span class="tick-container" id="${tickId}">${getSingleTickSvg()}</span>
                 </div>
             </div>
         `;
         chatBox.appendChild(wrap);
+        conversationHistory.push({ role: 'user', content: text });
         unreadTickIds.push(tickId);
 
-        // After 350ms, single tick becomes double grey tick (delivered)
-        setTimeout(() => {
-            const el = document.getElementById(tickId);
-            if (el && !el.dataset.read) {
+        scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
+    }
+
+    function transitionTicksToDoubleGrey() {
+        unreadTickIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
                 el.innerHTML = getDoubleTickSvg(false);
             }
-        }, 350);
-
-        input.value = '';
-        input.focus();
-        scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
-
-        pendingUserMessages.push(text);
-        conversationHistory.push({ role: 'user', content: text });
-
-        // Pause reading until user silence is confirmed
-        stopProactiveTimer();
-        hasProactedThisSession = false;
-        clearTimeout(unreadHoldTimer);
-        clearTimeout(readPhaseTimer);
-        isAuraReading = false;
-        checkSilenceAndRead();
+        });
     }
 
-    async function triggerAuraResponse() {
-        if (isAuraProcessing || pendingUserMessages.length === 0) return;
-
-        isAuraProcessing = true;
-        isAuraReading = false;
-        clearTimeout(readPhaseTimer);
-        clearTimeout(unreadHoldTimer);
-        stopProactiveTimer();
-        setHeaderStatus('AURA sedang mengetik...', true);
-
-        const chatBox = document.getElementById('chat-box');
-        const scroll = document.getElementById('content-scroll');
-
-        // Remove empty state hint if present
-        const emptyHint = document.getElementById('empty-chat-hint');
-        if (emptyHint) {
-            emptyHint.remove();
-        }
-
-        // Show typing indicator
-        const typingIndicator = createTypingIndicator();
-        chatBox.appendChild(typingIndicator);
-        scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
-
-        // Snapshot current batch & reply context
-        const batch = [...pendingUserMessages];
-        const replyContextToSend = activeReplyForBatch ? { ...activeReplyForBatch } : null;
-        pendingUserMessages.length = 0;
-        activeReplyForBatch = null;
-
-        const startTime = Date.now();
-        let replies = [];
-
-        try {
-            const res = await fetch('/api/v1/simulator/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({
-                    messages: batch,
-                    reply_to: replyContextToSend,
-                    history: conversationHistory.slice(-8)
-                })
-            });
-            const data = await res.json();
-            if (data.current_mood) {
-                updateMoodDisplay(data.current_mood);
+    function transitionTicksToBlue() {
+        unreadTickIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.innerHTML = getDoubleTickSvg(true);
             }
-            if (data.relationship_stage) {
-                updateStageDisplay(data.relationship_stage);
-            }
-            if (data.replies && Array.isArray(data.replies) && data.replies.length > 0) {
-                replies = data.replies;
-            } else if (data.reply) {
-                replies = [data.reply];
-            } else {
-                replies = ['Terima kasih sudah berbagi cerita sama aku ✨'];
-            }
-        } catch (err) {
-            replies = ['Terima kasih sudah nemenin malam ini 🌿', 'Ada cerita seru apa lagi hari ini?'];
-        }
-
-        // Realistic typing duration driven by mood
-        const pacing = getMoodPacing(currentAuraMood);
-        const elapsed = Date.now() - startTime;
-        if (elapsed < pacing.minTyping) {
-            await sleep(pacing.minTyping - elapsed);
-        }
-
-        // Sequentially deliver each bubble with a typing pause
-        for (let i = 0; i < replies.length; i++) {
-            const bubbleText = replies[i];
-
-            if (i > 0) {
-                chatBox.appendChild(typingIndicator);
-                scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
-                const typingDuration = Math.min(2400, Math.max(900, bubbleText.length * pacing.charSpeed));
-                await sleep(typingDuration);
-            }
-
-            if (typingIndicator.parentNode) {
-                typingIndicator.parentNode.removeChild(typingIndicator);
-            }
-
-            const wrap = document.createElement('div');
-            wrap.className = 'bubble-wrap bubble-wrap-aura';
-            wrap.innerHTML = `
-                <div class="bubble bubble-aura" ondblclick="startReplyFromBubble(this)">
-                    <div class="bubble-text-content">${escapeHtml(bubbleText)}</div>
-                    <div class="bubble-meta" style="color: var(--text-muted);">${getTimeString()}</div>
-                </div>
-                <button type="button" class="reply-trigger-btn" onclick="startReply(this)" title="Balas pesan">
-                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="9 17 4 12 9 7"></polyline>
-                        <path d="M20 18v-2a4 4 0 0 0-4-4H4"></path>
-                    </svg>
-                </button>
-            `;
-            chatBox.appendChild(wrap);
-            conversationHistory.push({ role: 'model', content: bubbleText });
-            scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
-
-            if (i < replies.length - 1) {
-                await sleep(350);
-            }
-        }
-
-        isAuraProcessing = false;
-        setHeaderStatus('Virtual Life Online');
-
-        if (pendingUserMessages.length > 0) {
-            checkSilenceAndRead();
-        } else {
-            resetProactiveTimer();
-        }
+        });
+        unreadTickIds.length = 0;
     }
 
-    // Proactive Chat Initiation when user is idle & AURA is excited
-    function resetProactiveTimer() {
+    function resetIdleProactiveTimer() {
         stopProactiveTimer();
+
         if (hasProactedThisSession) return;
-        if (isAuraProcessing || isAuraReading) return;
-        if (pendingUserMessages.length > 0) return;
-        if (conversationHistory.length === 0) return; // Menunggu sapaan pertama dari pengguna
-
-        const input = document.getElementById('chat-input');
-        if (input && input.value.trim().length > 0) return;
 
         const pacing = getMoodPacing(currentAuraMood);
-        if (pacing.idleProactiveTime > 0) {
-            idleProactiveTimer = setTimeout(() => {
-                triggerProactiveChat();
-            }, pacing.idleProactiveTime);
-        }
+        if (!pacing.idleProactiveTime) return;
+
+        idleProactiveTimer = setTimeout(async () => {
+            if (isAuraProcessing || isAuraReading || userIsTyping || hasProactedThisSession) return;
+            await triggerProactiveMessage();
+        }, pacing.idleProactiveTime);
     }
 
     function stopProactiveTimer() {
@@ -1896,30 +2096,16 @@
         }
     }
 
-    async function triggerProactiveChat() {
-        const input = document.getElementById('chat-input');
-        if (input && input.value.trim().length > 0) return;
-        if (userIsTyping || isAuraProcessing || isAuraReading || pendingUserMessages.length > 0) return;
-        if (hasProactedThisSession) return;
-
+    async function triggerProactiveMessage() {
         hasProactedThisSession = true;
         isAuraProcessing = true;
-        setHeaderStatus('AURA sedang mengetik...', true);
-
         const chatBox = document.getElementById('chat-box');
         const scroll = document.getElementById('content-scroll');
 
-        // Remove empty state hint if present
-        const emptyHint = document.getElementById('empty-chat-hint');
-        if (emptyHint) {
-            emptyHint.remove();
-        }
-
+        setHeaderStatus('AURA sedang mengetik...', true);
         const typingIndicator = createTypingIndicator();
         chatBox.appendChild(typingIndicator);
         scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
-
-        let replies = [];
 
         try {
             const res = await fetch('/api/v1/simulator/proactive', {
@@ -1927,91 +2113,274 @@
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
+                }
+            });
+            const data = await res.json();
+            if (typingIndicator.parentNode) typingIndicator.parentNode.removeChild(typingIndicator);
+
+            if (data.success && data.replies && data.replies.length > 0) {
+                if (data.current_mood) {
+                    updateMoodDisplay(data.current_mood);
+                }
+                const pacing = getMoodPacing(currentAuraMood);
+
+                for (let i = 0; i < data.replies.length; i++) {
+                    const bubbleText = data.replies[i];
+
+                    if (i > 0) {
+                        setHeaderStatus('AURA sedang mengetik...', true);
+                        chatBox.appendChild(typingIndicator);
+                        scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
+                        const typingDuration = Math.min(2200, Math.max(900, bubbleText.length * pacing.charSpeed));
+                        await sleep(typingDuration);
+                        if (typingIndicator.parentNode) typingIndicator.parentNode.removeChild(typingIndicator);
+                    }
+
+                    const time = getTimeString();
+                    const wrap = document.createElement('div');
+                    wrap.className = 'bubble-wrap bubble-wrap-aura';
+                    wrap.innerHTML = `
+                        <div class="bubble bubble-aura" ondblclick="startReplyFromBubble(this)">
+                            <div class="bubble-text-content">${escapeHtml(bubbleText)}</div>
+                            <div class="bubble-meta" style="color: var(--text-muted);">${time}</div>
+                        </div>
+                        <button type="button" class="reply-trigger-btn" onclick="startReply(this)" title="Balas pesan">
+                            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="9 17 4 12 9 7"></polyline>
+                                <path d="M20 18v-2a4 4 0 0 0-4-4H4"></path>
+                            </svg>
+                        </button>
+                    `;
+                    chatBox.appendChild(wrap);
+                    conversationHistory.push({ role: 'model', content: bubbleText });
+                    scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
+
+                    if (i < data.replies.length - 1) {
+                        await sleep(400);
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('Proactive message error:', e);
+            if (typingIndicator.parentNode) typingIndicator.parentNode.removeChild(typingIndicator);
+        } finally {
+            isAuraProcessing = false;
+            setHeaderStatus('Virtual Life Online');
+        }
+    }
+
+    function startReply(btn) {
+        const wrap = btn.closest('.bubble-wrap');
+        if (!wrap) return;
+        const bubble = wrap.querySelector('.bubble');
+        if (!bubble) return;
+        startReplyFromBubble(bubble);
+    }
+
+    function startReplyFromBubble(bubbleEl) {
+        const isUser = bubbleEl.classList.contains('bubble-user');
+        const textContentEl = bubbleEl.querySelector('.bubble-text-content');
+        const text = textContentEl ? textContentEl.innerText : bubbleEl.innerText;
+
+        currentReply = {
+            sender: isUser ? 'Kamu' : 'AURA',
+            content: text.trim()
+        };
+
+        const bar = document.getElementById('reply-preview-bar');
+        const authorEl = document.getElementById('reply-bar-author');
+        const snippetEl = document.getElementById('reply-bar-snippet');
+        const input = document.getElementById('chat-input');
+
+        if (authorEl) authorEl.innerText = 'Membalas ' + currentReply.sender;
+        if (snippetEl) snippetEl.innerText = currentReply.content;
+        if (bar) bar.style.display = 'flex';
+
+        if (input) input.focus();
+    }
+
+    function cancelReply() {
+        currentReply = null;
+        const bar = document.getElementById('reply-preview-bar');
+        if (bar) bar.style.display = 'none';
+    }
+
+    function handleSend(e) {
+        e.preventDefault();
+        const input = document.getElementById('chat-input');
+        const text = input.value.trim();
+        if (!text) return;
+
+        input.value = '';
+        input.focus();
+
+        stopProactiveTimer();
+
+        const isFirstInBatch = pendingUserMessages.length === 0;
+        if (isFirstInBatch) {
+            activeReplyForBatch = currentReply ? { ...currentReply } : null;
+            cancelReply();
+        }
+
+        pendingUserMessages.push(text);
+        appendUserBubbleImmediate(text, isFirstInBatch);
+
+        clearTimeout(silenceTimer);
+
+        if (!isAuraReading && !isAuraProcessing) {
+            silenceTimer = setTimeout(() => {
+                triggerAuraResponseBatch();
+            }, 3000);
+        }
+    }
+
+    async function triggerAuraResponseBatch() {
+        if (pendingUserMessages.length === 0) return;
+        if (isAuraProcessing) return;
+
+        isAuraProcessing = true;
+        isAuraReading = true;
+
+        const messagesToSend = [...pendingUserMessages];
+        pendingUserMessages.length = 0;
+        const replyContextToSend = activeReplyForBatch ? { ...activeReplyForBatch } : null;
+        activeReplyForBatch = null;
+
+        const pacing = getMoodPacing(currentAuraMood);
+
+        if (pacing.unreadDelay > 0) {
+            await sleep(pacing.unreadDelay);
+        }
+
+        transitionTicksToDoubleGrey();
+
+        await sleep(pacing.readDelay);
+
+        transitionTicksToBlue();
+        isAuraReading = false;
+
+        const chatBox = document.getElementById('chat-box');
+        const scroll = document.getElementById('content-scroll');
+
+        setHeaderStatus('AURA sedang mengetik...', true);
+        const typingIndicator = createTypingIndicator();
+        chatBox.appendChild(typingIndicator);
+        scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
+
+        try {
+            const res = await fetch('/api/v1/simulator/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                 },
                 body: JSON.stringify({
-                    history: conversationHistory.slice(-6)
+                    messages: messagesToSend,
+                    reply_to: replyContextToSend
                 })
             });
             const data = await res.json();
-            if (data.current_mood) {
-                updateMoodDisplay(data.current_mood);
-            }
-            if (data.relationship_stage) {
-                updateStageDisplay(data.relationship_stage);
-            }
-            if (data.replies && Array.isArray(data.replies) && data.replies.length > 0) {
-                replies = data.replies;
-            } else if (data.reply) {
-                replies = [data.reply];
-            } else {
-                replies = ['Eh kok ngilang sih? wkwk', 'Lagi sibuk yaa?'];
-            }
-        } catch (err) {
-            replies = ['Eh masih ada orangnya gak nih? 🙈', 'Jangan-jangan ketiduran yaa wkwk'];
-        }
-
-        const pacing = getMoodPacing(currentAuraMood);
-        await sleep(Math.max(1200, pacing.minTyping));
-
-        for (let i = 0; i < replies.length; i++) {
-            const bubbleText = replies[i];
-
-            if (i > 0) {
-                chatBox.appendChild(typingIndicator);
-                scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
-                const typingDuration = Math.min(2200, Math.max(900, bubbleText.length * pacing.charSpeed));
-                await sleep(typingDuration);
-            }
 
             if (typingIndicator.parentNode) {
                 typingIndicator.parentNode.removeChild(typingIndicator);
             }
 
-            const wrap = document.createElement('div');
-            wrap.className = 'bubble-wrap bubble-wrap-aura';
-            wrap.innerHTML = `
-                <div class="bubble bubble-aura" ondblclick="startReplyFromBubble(this)">
-                    <div class="bubble-text-content">${escapeHtml(bubbleText)}</div>
-                    <div class="bubble-meta" style="color: var(--text-muted);">${getTimeString()}</div>
-                </div>
-                <button type="button" class="reply-trigger-btn" onclick="startReply(this)" title="Balas pesan">
-                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="9 17 4 12 9 7"></polyline>
-                        <path d="M20 18v-2a4 4 0 0 0-4-4H4"></path>
-                    </svg>
-                </button>
-            `;
-            chatBox.appendChild(wrap);
-            conversationHistory.push({ role: 'model', content: bubbleText });
-            scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
+            if (data.success) {
+                if (data.relationship_stage) {
+                    updateStageDisplay(data.relationship_stage);
+                }
+                if (data.current_mood) {
+                    updateMoodDisplay(data.current_mood);
+                }
+                if (data.scenario) {
+                    renderScenarioBanner(data.scenario);
+                }
 
-            if (i < replies.length - 1) {
-                await sleep(350);
+                const updatedPacing = getMoodPacing(currentAuraMood);
+
+                for (let i = 0; i < data.replies.length; i++) {
+                    const bubbleText = data.replies[i];
+
+                    if (i > 0) {
+                        setHeaderStatus('AURA sedang mengetik...', true);
+                        chatBox.appendChild(typingIndicator);
+                        scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
+
+                        const typingDuration = Math.min(2400, Math.max(900, bubbleText.length * updatedPacing.charSpeed));
+                        await sleep(typingDuration);
+
+                        if (typingIndicator.parentNode) {
+                            typingIndicator.parentNode.removeChild(typingIndicator);
+                        }
+                    } else {
+                        const firstTypingDuration = Math.min(1800, Math.max(updatedPacing.minTyping, bubbleText.length * 15));
+                        await sleep(firstTypingDuration);
+                    }
+
+                    const time = getTimeString();
+                    const wrap = document.createElement('div');
+                    wrap.className = 'bubble-wrap bubble-wrap-aura';
+                    wrap.innerHTML = `
+                        <div class="bubble bubble-aura" ondblclick="startReplyFromBubble(this)">
+                            <div class="bubble-text-content">${escapeHtml(bubbleText)}</div>
+                            <div class="bubble-meta" style="color: var(--text-muted);">${time}</div>
+                        </div>
+                        <button type="button" class="reply-trigger-btn" onclick="startReply(this)" title="Balas pesan">
+                            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="9 17 4 12 9 7"></polyline>
+                                <path d="M20 18v-2a4 4 0 0 0-4-4H4"></path>
+                            </svg>
+                        </button>
+                    `;
+                    chatBox.appendChild(wrap);
+                    conversationHistory.push({ role: 'model', content: bubbleText });
+                    scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
+
+                    if (i < data.replies.length - 1) {
+                        await sleep(350);
+                    }
+                }
+            } else {
+                alert(data.reply || 'Terjadi kesalahan');
+            }
+        } catch (e) {
+            console.error(e);
+            if (typingIndicator.parentNode) {
+                typingIndicator.parentNode.removeChild(typingIndicator);
+            }
+        } finally {
+            isAuraProcessing = false;
+            setHeaderStatus('Virtual Life Online');
+            resetIdleProactiveTimer();
+
+            if (pendingUserMessages.length > 0) {
+                silenceTimer = setTimeout(() => {
+                    triggerAuraResponseBatch();
+                }, 1500);
             }
         }
-
-        isAuraProcessing = false;
-        setHeaderStatus('Virtual Life Online');
     }
 
-    const inputEl = document.getElementById('chat-input');
-    inputEl.addEventListener('input', handleInputActivity);
-    inputEl.addEventListener('keydown', handleInputActivity);
-
-    function updateClockNow() {
-        const d = new Date();
-        const clockEl = document.getElementById('local-clock');
-        if (clockEl) {
-            clockEl.innerText = d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0') + ' WIB';
-        }
+    const chatInputField = document.getElementById('chat-input');
+    if (chatInputField) {
+        chatInputField.addEventListener('input', () => {
+            userIsTyping = true;
+            stopProactiveTimer();
+            clearTimeout(userTypingTimer);
+            userTypingTimer = setTimeout(() => {
+                userIsTyping = false;
+                resetIdleProactiveTimer();
+            }, 3000);
+        });
     }
 
-    updateClockNow();
-    setInterval(updateClockNow, 10000);
-    loadStatus();
-    setInterval(loadStatus, 30000);
-    loadHistory();
+    // Initialize application
+    window.addEventListener('DOMContentLoaded', async () => {
+        await loadStatus();
+        await loadHistory();
+        setInterval(loadStatus, 25000);
+        resetIdleProactiveTimer();
+    });
 </script>
-
 </body>
 </html>

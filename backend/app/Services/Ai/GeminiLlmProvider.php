@@ -26,8 +26,9 @@ class GeminiLlmProvider implements LlmProviderInterface
 
         $candidateModels = array_unique([
             $this->model,
-            'gemini-3.1-flash-lite',
-            'gemini-3.5-flash',
+            'gemini-2.5-flash',
+            'gemini-2.0-flash',
+            'gemini-1.5-flash',
             'gemini-flash-latest',
         ]);
 

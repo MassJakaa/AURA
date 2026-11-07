@@ -1,0 +1,26 @@
+services:
+  aura-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aura_companion_backend
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    environment:
+      - APP_NAME=AURA
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_URL=http://localhost:8000
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-flash}
+      - DB_CONNECTION=sqlite
+    volumes:
+      - aura_backend_db:/var/www/html/database
+      - aura_backend_storage:/var/www/html/storage/app
+
+volumes:
+  aura_backend_db:
+    driver: local
+  aura_backend_storage:
+    driver: local

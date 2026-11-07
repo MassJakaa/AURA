@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(AuraLifeSystemSeeder::class);
+        $this->call(ApproveMasterSheetSeeder::class);
 
         // Seed demo user for testing and verification
         $user = User::firstOrCreate(
