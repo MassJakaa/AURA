@@ -426,6 +426,199 @@
             margin: 0;
         }
 
+        .scenario-story-btn {
+            background: #F3EFFE;
+            color: #6C5AA6;
+            border: 1px solid #DDD6FE;
+            border-radius: 9px;
+            font-size: 10.5px;
+            font-weight: 700;
+            padding: 3px 9px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .scenario-story-btn:hover {
+            background: #EDE6FB;
+            border-color: var(--accent-lavender);
+            transform: translateY(-1px);
+        }
+
+        /* Narrative Prologue Modal */
+        .narrative-card {
+            background: #FFFFFF;
+            max-height: 90%;
+            border-top: 1px solid #EDE6DC;
+            padding: 20px 18px 18px;
+            position: relative;
+        }
+
+        .narrative-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .narrative-badge-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #F7F4EE;
+            border: 1px solid #EAE2D5;
+            color: #7A7265;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 8px;
+        }
+
+        .narrative-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .narrative-icon-wrap {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #F5F0FF, #EDE6FB);
+            border: 1px solid #E0D4F7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(157, 140, 215, 0.15);
+        }
+
+        .narrative-title-group {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .narrative-title-group h3 {
+            font-size: 15.5px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .narrative-subtitle {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-sub);
+        }
+
+        .narrative-scroll-area {
+            overflow-y: auto;
+            max-height: 380px;
+            padding-right: 2px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .narrative-story-box {
+            background: linear-gradient(180deg, #FDFCF9 0%, #F9F5EC 100%);
+            border: 1px solid #ECE2D2;
+            border-radius: 16px;
+            padding: 14px 16px;
+            position: relative;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.8), 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        .narrative-quote-decor {
+            position: absolute;
+            top: 6px;
+            right: 12px;
+            font-size: 46px;
+            line-height: 1;
+            font-family: Georgia, serif;
+            color: rgba(157, 140, 215, 0.18);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .narrative-body-text {
+            font-size: 12.5px;
+            line-height: 1.6;
+            color: #383445;
+            position: relative;
+            z-index: 1;
+        }
+
+        .narrative-body-text p {
+            margin-bottom: 10px;
+        }
+
+        .narrative-body-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        .narrative-action-box {
+            background: #F5F3FF;
+            border: 1px solid #DDD6FE;
+            border-radius: 13px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .narrative-action-icon {
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .narrative-action-text {
+            font-size: 11.5px;
+            color: #5B21B6;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .narrative-footer {
+            margin-top: 4px;
+        }
+
+        .narrative-start-btn {
+            width: 100%;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--accent-lavender), #7C68BF);
+            color: white;
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(108, 90, 166, 0.28);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .narrative-start-btn:hover {
+            transform: translateY(-1.5px);
+            box-shadow: 0 6px 18px rgba(108, 90, 166, 0.35);
+        }
+
+        .narrative-start-btn:active {
+            transform: scale(0.985);
+        }
+
         /* Modal Overlay & Card */
         .modal-overlay {
             position: absolute;
@@ -723,7 +916,12 @@
                     <span id="scenario-icon">☕</span>
                     <span id="scenario-title" style="font-weight: 700; font-size: 12px; color: var(--text-main);">Dikenalin Teman Tongkrongan</span>
                 </div>
-                <span id="scenario-initiator-badge" class="scenario-badge badge-initiator-aura">AURA Chat Duluan</span>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <span id="scenario-initiator-badge" class="scenario-badge badge-initiator-aura">AURA Chat Duluan</span>
+                    <button type="button" class="scenario-story-btn" onclick="openCurrentNarrativeModal()" title="Baca Narasi Kisah Skenario">
+                        📖 Baca Kisah
+                    </button>
+                </div>
             </div>
             <p id="scenario-premise" class="scenario-desc">Memuat skenario...</p>
         </div>
@@ -762,6 +960,53 @@
             </p>
             <div class="scenario-list" id="scenario-list">
                 <!-- Dynamically loaded from /api/v1/simulator/scenarios -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scenario Narrative Prologue Modal -->
+    <div class="modal-overlay" id="narrative-modal" style="display: none;" onclick="if(event.target === this) closeNarrativeModal()">
+        <div class="modal-card narrative-card">
+            <div class="narrative-top-bar">
+                <div class="narrative-badge-kicker">
+                    <span>📖</span> PROLOG SKENARIO
+                </div>
+                <button type="button" class="modal-close" onclick="closeNarrativeModal()">✕</button>
+            </div>
+
+            <div class="narrative-header">
+                <div class="narrative-icon-wrap" id="narrative-icon-wrap">
+                    <span id="narrative-icon">☕</span>
+                </div>
+                <div class="narrative-title-group">
+                    <h3 id="narrative-title">Dikenalin Teman Tongkrongan</h3>
+                    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 4px;">
+                        <span id="narrative-subtitle" class="narrative-subtitle">Kontak dari Rian</span>
+                        <span id="narrative-badge" class="scenario-badge badge-initiator-aura">AURA Chat Duluan</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="narrative-scroll-area">
+                <div class="narrative-story-box">
+                    <div class="narrative-quote-decor">“</div>
+                    <div id="narrative-body" class="narrative-body-text">
+                        <!-- Populated dynamically by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="narrative-action-box" id="narrative-action-box">
+                    <span class="narrative-action-icon" id="narrative-action-icon">💡</span>
+                    <span class="narrative-action-text" id="narrative-action-text">
+                        AURA sudah mengirimkan pesan pertama untuk menyapamu. Cek pesan masuknya!
+                    </span>
+                </div>
+            </div>
+
+            <div class="narrative-footer">
+                <button type="button" class="narrative-start-btn" id="narrative-start-btn" onclick="closeNarrativeModal()">
+                    <span id="narrative-start-btn-text">Masuk ke Obrolan ✨</span>
+                </button>
             </div>
         </div>
     </div>
@@ -1123,6 +1368,8 @@
         const card = document.getElementById('scenario-card');
         if (!card || !scenario) return;
 
+        currentScenario = scenario;
+
         const iconEl = document.getElementById('scenario-icon');
         const titleEl = document.getElementById('scenario-title');
         const badgeEl = document.getElementById('scenario-initiator-badge');
@@ -1139,6 +1386,15 @@
             } else {
                 badgeEl.innerText = 'Kamu Chat Duluan';
                 badgeEl.className = 'scenario-badge badge-initiator-user';
+            }
+        }
+
+        const input = document.getElementById('chat-input');
+        if (input) {
+            if (scenario.initiator === 'user' && scenario.user_hint && (!conversationHistory.length || conversationHistory.length === 0)) {
+                input.placeholder = scenario.user_hint;
+            } else {
+                input.placeholder = 'Ketik pesan untuk AURA...';
             }
         }
 
@@ -1245,8 +1501,92 @@
         }
     }
 
-    // Modal Scenario Management
+    // Modal Scenario & Narrative Management
     let availableScenarios = [];
+    let currentScenario = null;
+
+    function showNarrativeModal(scenario) {
+        if (!scenario) return;
+        currentScenario = scenario;
+
+        const modal = document.getElementById('narrative-modal');
+        if (!modal) return;
+
+        const iconEl = document.getElementById('narrative-icon');
+        const titleEl = document.getElementById('narrative-title');
+        const subtitleEl = document.getElementById('narrative-subtitle');
+        const badgeEl = document.getElementById('narrative-badge');
+        const bodyEl = document.getElementById('narrative-body');
+        const actionIconEl = document.getElementById('narrative-action-icon');
+        const actionTextEl = document.getElementById('narrative-action-text');
+        const btnTextEl = document.getElementById('narrative-start-btn-text');
+
+        if (iconEl) iconEl.innerText = scenario.icon || '🌱';
+        if (titleEl) titleEl.innerText = scenario.title || 'Skenario Pertemuan';
+        if (subtitleEl) subtitleEl.innerText = scenario.subtitle || 'Kisah Awal';
+
+        const isAura = scenario.initiator === 'aura';
+        if (badgeEl) {
+            badgeEl.innerText = isAura ? 'AURA Chat Duluan' : 'Kamu Chat Duluan';
+            badgeEl.className = `scenario-badge ${isAura ? 'badge-initiator-aura' : 'badge-initiator-user'}`;
+        }
+
+        if (bodyEl) {
+            const rawNarrative = scenario.narrative || scenario.premise || '';
+            const paragraphs = rawNarrative.split(/\n\s*\n/).filter(p => p.trim().length > 0);
+            if (paragraphs.length > 0) {
+                bodyEl.innerHTML = paragraphs.map(p => `<p>${escapeHtml(p.trim())}</p>`).join('');
+            } else {
+                bodyEl.innerHTML = `<p>${escapeHtml(rawNarrative)}</p>`;
+            }
+        }
+
+        if (actionIconEl) {
+            actionIconEl.innerText = isAura ? '💬' : '✍️';
+        }
+
+        if (actionTextEl) {
+            actionTextEl.innerText = scenario.narrative_action_text || (
+                isAura
+                    ? 'AURA sudah mengirimkan pesan pertama untuk menyapamu. Cek pesan masuknya!'
+                    : 'Sekarang giliranmu untuk mengirimkan pesan pembuka kepada AURA!'
+            );
+        }
+
+        if (btnTextEl) {
+            btnTextEl.innerText = isAura ? 'Lihat Pesan Masuk ✨' : 'Mulai Kirim Pesan ✍️';
+        }
+
+        modal.style.display = 'flex';
+    }
+
+    function closeNarrativeModal() {
+        const modal = document.getElementById('narrative-modal');
+        if (modal) modal.style.display = 'none';
+
+        if (currentScenario && currentScenario.initiator === 'user') {
+            const input = document.getElementById('chat-input');
+            if (input) {
+                if (currentScenario.user_hint && (!conversationHistory.length || conversationHistory.length === 0)) {
+                    input.placeholder = currentScenario.user_hint;
+                }
+                input.focus();
+            }
+        }
+
+        const scroll = document.getElementById('content-scroll');
+        if (scroll) {
+            setTimeout(() => {
+                scroll.scrollTo({ top: scroll.scrollHeight, behavior: 'smooth' });
+            }, 50);
+        }
+    }
+
+    function openCurrentNarrativeModal() {
+        if (currentScenario) {
+            showNarrativeModal(currentScenario);
+        }
+    }
 
     async function openScenarioModal() {
         const modal = document.getElementById('scenario-modal');
@@ -1333,6 +1673,10 @@
                 setHeaderStatus('Virtual Life Online');
 
                 await loadHistory();
+
+                if (data.scenario) {
+                    showNarrativeModal(data.scenario);
+                }
             }
         } catch (e) {
             console.error('Reset conversation error:', e);

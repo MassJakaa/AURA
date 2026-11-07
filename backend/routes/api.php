@@ -121,7 +121,7 @@ Route::prefix('v1/simulator')->group(function () {
                 'label' => $mood->label(),
                 'emoji' => $mood->emoji(),
             ],
-            'scenario' => $conversation->metadata['scenario'] ?? \App\Services\Personalization\ScenarioService::getScenarioById('classic_first_meet'),
+            'scenario' => \App\Services\Personalization\ScenarioService::hydrateScenario($conversation->metadata['scenario'] ?? null),
             'messages' => $messages,
         ]);
     });
@@ -180,7 +180,7 @@ Route::prefix('v1/simulator')->group(function () {
                 'label' => $mood->label(),
                 'emoji' => $mood->emoji(),
             ],
-            'scenario' => $conversation->metadata['scenario'] ?? null,
+            'scenario' => \App\Services\Personalization\ScenarioService::hydrateScenario($conversation->metadata['scenario'] ?? null),
             'messages' => $messages,
         ]);
     });
@@ -370,7 +370,7 @@ Route::prefix('v1/simulator')->group(function () {
                 'badge' => $stage->badge(),
             ],
             'user_name' => $conversation->metadata['user_name'] ?? null,
-            'scenario' => $conversation->metadata['scenario'] ?? null,
+            'scenario' => \App\Services\Personalization\ScenarioService::hydrateScenario($conversation->metadata['scenario'] ?? null),
             'current_activity' => $activity?->name,
             'location' => $activity?->location?->name,
         ]);
@@ -496,7 +496,7 @@ Route::prefix('v1/simulator')->group(function () {
                 'badge' => $stage->badge(),
             ],
             'user_name' => $conversation->metadata['user_name'] ?? null,
-            'scenario' => $conversation->metadata['scenario'] ?? null,
+            'scenario' => \App\Services\Personalization\ScenarioService::hydrateScenario($conversation->metadata['scenario'] ?? null),
             'current_activity' => $activity?->name,
             'location' => $activity?->location?->name,
         ]);
