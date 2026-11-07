@@ -121,11 +121,20 @@ Route::prefix('v1/simulator')->group(function () {
                 'label' => $mood->label(),
                 'emoji' => $mood->emoji(),
             ],
+            'scenario' => $conversation->metadata['scenario'] ?? \App\Services\Personalization\ScenarioService::getScenarioById('classic_first_meet'),
             'messages' => $messages,
         ]);
     });
 
+    Route::get('/scenarios', function () {
+        return response()->json([
+            'success' => true,
+            'scenarios' => \App\Services\Personalization\ScenarioService::getAllScenarios(),
+        ]);
+    });
+
     Route::post('/reset', function (
+        Request $request,
         \App\Services\Character\CharacterService $charService,
         \App\Services\Personalization\RelationshipService $relService
     ) {
@@ -134,7 +143,8 @@ Route::prefix('v1/simulator')->group(function () {
             ['name' => 'Demo User', 'password' => \Illuminate\Support\Facades\Hash::make('password123')]
         );
         $character = $charService->getPrimaryCharacter();
-        $conversation = $relService->resetConversation($user, $character);
+        $scenarioId = $request->input('scenario_id');
+        $conversation = $relService->resetConversation($user, $character, $scenarioId);
         $stage = \App\Enums\RelationshipStage::FIRST_MEETING;
 
         \Illuminate\Support\Facades\Cache::put('aura_simulator_mood', 'peaceful', now()->addDays(1));
@@ -170,6 +180,7 @@ Route::prefix('v1/simulator')->group(function () {
                 'label' => $mood->label(),
                 'emoji' => $mood->emoji(),
             ],
+            'scenario' => $conversation->metadata['scenario'] ?? null,
             'messages' => $messages,
         ]);
     });
@@ -293,6 +304,11 @@ Route::prefix('v1/simulator')->group(function () {
             'chat_density' => $density,
         ];
 
+        $scenario = $conversation->metadata['scenario'] ?? null;
+        if (!empty($scenario['prompt_context'])) {
+            $context['scenario_context'] = $scenario['prompt_context'];
+        }
+
         if (is_array($replyTo) && !empty($replyTo['content'])) {
             $sender = $replyTo['sender'] ?? 'AURA';
             $quoted = $replyTo['content'];
@@ -354,6 +370,7 @@ Route::prefix('v1/simulator')->group(function () {
                 'badge' => $stage->badge(),
             ],
             'user_name' => $conversation->metadata['user_name'] ?? null,
+            'scenario' => $conversation->metadata['scenario'] ?? null,
             'current_activity' => $activity?->name,
             'location' => $activity?->location?->name,
         ]);
@@ -479,6 +496,7 @@ Route::prefix('v1/simulator')->group(function () {
                 'badge' => $stage->badge(),
             ],
             'user_name' => $conversation->metadata['user_name'] ?? null,
+            'scenario' => $conversation->metadata['scenario'] ?? null,
             'current_activity' => $activity?->name,
             'location' => $activity?->location?->name,
         ]);

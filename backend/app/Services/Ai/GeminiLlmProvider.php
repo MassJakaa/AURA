@@ -286,6 +286,14 @@ class GeminiLlmProvider implements LlmProviderInterface
             ]);
         }
 
+        if (!empty($context['scenario_context'])) {
+            $instructions[] = implode("\n", [
+                "LATAR BELAKANG PERTEMUAN (SKENARIO & PREMIS AWAL):",
+                $context['scenario_context'],
+                "- PENTING: Ingat selalu alasan bagaimana kalian bisa saling memiliki kontak sesuai premis di atas! Hubungkan responmu dengan latar belakang ini jika relevan.",
+            ]);
+        }
+
         if (!empty($context['is_proactive'])) {
             $instructions[] = "KONTEKS INISIATIF CHAT DULUAN:";
             $instructions[] = "- Pengguna sedang diam dan belum mengirim pesan selama beberapa waktu.";

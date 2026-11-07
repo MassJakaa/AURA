@@ -377,6 +377,134 @@
             border-color: #D4CBBC;
         }
 
+        /* Scenario Card Banner */
+        .scenario-card {
+            background: #FFFDF9;
+            border: 1px solid #EFE8DC;
+            border-radius: 18px;
+            padding: 12px 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            animation: bubbleIn 0.25s ease-out;
+        }
+
+        .scenario-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .scenario-title-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .scenario-badge {
+            font-size: 9.5px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .badge-initiator-aura {
+            background: #EDE9FE;
+            color: #5B21B6;
+            border: 1px solid #DDD6FE;
+        }
+
+        .badge-initiator-user {
+            background: #ECFDF5;
+            color: #065F46;
+            border: 1px solid #A7F3D0;
+        }
+
+        .scenario-desc {
+            font-size: 11.5px;
+            color: var(--text-sub);
+            line-height: 1.45;
+            margin: 0;
+        }
+
+        /* Modal Overlay & Card */
+        .modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            backdrop-filter: blur(3px);
+            z-index: 1000;
+            display: flex;
+            align-items: flex-end;
+            border-radius: inherit;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-card {
+            background: white;
+            width: 100%;
+            max-height: 85%;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            padding: 18px 16px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            animation: slideUp 0.25s ease-out;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 4px;
+        }
+
+        .scenario-list {
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            padding-right: 2px;
+            max-height: 380px;
+        }
+
+        .scenario-item-btn {
+            background: #FAF8F5;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 10px 12px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .scenario-item-btn:hover {
+            background: #F4EFE6;
+            border-color: var(--accent-lavender);
+            transform: translateY(-1px);
+        }
+
+        .scenario-item-btn.random-btn {
+            background: linear-gradient(135deg, #F5F3FF, #EDE9FE);
+            border-color: #DDD6FE;
+        }
+
         @keyframes moodPop {
             0% { transform: scale(0.92); opacity: 0.85; }
             50% { transform: scale(1.1); }
@@ -547,7 +675,7 @@
         </div>
         <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
             <div style="display: flex; align-items: center; gap: 6px;">
-                <button type="button" class="header-action-btn" onclick="confirmResetConversation()" title="Mulai ulang percakapan dari tahap perkenalan">
+                <button type="button" class="header-action-btn" onclick="openScenarioModal()" title="Mulai obrolan baru dengan skenario pilihan">
                     <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
                         <path d="M3 3v5h5"/>
@@ -588,6 +716,18 @@
             </div>
         </div>
 
+        <!-- Scenario Premise Banner -->
+        <div class="scenario-card" id="scenario-card" style="display: none;">
+            <div class="scenario-header">
+                <div class="scenario-title-group">
+                    <span id="scenario-icon">☕</span>
+                    <span id="scenario-title" style="font-weight: 700; font-size: 12px; color: var(--text-main);">Dikenalin Teman Tongkrongan</span>
+                </div>
+                <span id="scenario-initiator-badge" class="scenario-badge badge-initiator-aura">AURA Chat Duluan</span>
+            </div>
+            <p id="scenario-premise" class="scenario-desc">Memuat skenario...</p>
+        </div>
+
         <!-- Chat bubble area -->
         <div class="chat-container" id="chat-box">
             <!-- Messages rendered dynamically from persistent SQLite database -->
@@ -609,6 +749,22 @@
         <input type="text" id="chat-input" placeholder="Ketik pesan untuk AURA..." autocomplete="off">
         <button type="submit" id="chat-send-btn">Kirim</button>
     </form>
+
+    <!-- Scenario Selection Modal -->
+    <div class="modal-overlay" id="scenario-modal" style="display: none;" onclick="if(event.target === this) closeScenarioModal()">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h4 style="font-size: 15px; font-weight: 700; color: var(--text-main); margin: 0;">Mulai Obrolan Baru</h4>
+                <button type="button" class="modal-close" onclick="closeScenarioModal()">✕</button>
+            </div>
+            <p style="font-size: 12px; color: var(--text-sub); margin: 6px 0 14px 0; line-height: 1.4;">
+                Pilih skenario bagaimana kamu dan AURA bisa saling kenal & punya kontak:
+            </p>
+            <div class="scenario-list" id="scenario-list">
+                <!-- Dynamically loaded from /api/v1/simulator/scenarios -->
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -962,6 +1118,33 @@
         }
     }
 
+    // Render scenario premise banner
+    function renderScenarioBanner(scenario) {
+        const card = document.getElementById('scenario-card');
+        if (!card || !scenario) return;
+
+        const iconEl = document.getElementById('scenario-icon');
+        const titleEl = document.getElementById('scenario-title');
+        const badgeEl = document.getElementById('scenario-initiator-badge');
+        const premiseEl = document.getElementById('scenario-premise');
+
+        if (iconEl) iconEl.innerText = scenario.icon || '🌱';
+        if (titleEl) titleEl.innerText = scenario.title || 'Skenario Pertemuan';
+        if (premiseEl) premiseEl.innerText = scenario.premise || '';
+
+        if (badgeEl) {
+            if (scenario.initiator === 'aura') {
+                badgeEl.innerText = 'AURA Chat Duluan';
+                badgeEl.className = 'scenario-badge badge-initiator-aura';
+            } else {
+                badgeEl.innerText = 'Kamu Chat Duluan';
+                badgeEl.className = 'scenario-badge badge-initiator-user';
+            }
+        }
+
+        card.style.display = 'block';
+    }
+
     // Load full persistent chat history from SQLite backend
     async function loadHistory() {
         try {
@@ -974,6 +1157,9 @@
             }
             if (data.current_mood) {
                 updateMoodDisplay(data.current_mood);
+            }
+            if (data.scenario) {
+                renderScenarioBanner(data.scenario);
             }
 
             const chatBox = document.getElementById('chat-box');
@@ -1035,11 +1221,15 @@
                     }
                 });
             } else {
+                const hintText = (data.scenario && data.scenario.user_hint)
+                    ? data.scenario.user_hint
+                    : 'Kirim pesan pertama kamu (misal: <i>"Halo Aura"</i> atau <i>"Hai!"</i>) untuk mulai berkenalan dengan AURA ✨';
+
                 chatBox.innerHTML = `
-                    <div id="empty-chat-hint" style="text-align: center; margin: 35px auto 20px auto; color: var(--text-muted); font-size: 12px; line-height: 1.6; max-width: 260px; background: rgba(255,255,255,0.75); padding: 14px 18px; border-radius: 18px; border: 1px dashed var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
-                        <div style="font-size: 22px; margin-bottom: 6px;">🌱</div>
-                        <b style="color: var(--text-main); font-size: 13px;">Tahap Perkenalan Awal</b><br>
-                        Kirim sapaan pertama kamu (misal: <i>"Halo Aura"</i> atau <i>"Hai!"</i>) untuk mulai berkenalan dengan AURA ✨
+                    <div id="empty-chat-hint" style="text-align: center; margin: 35px auto 20px auto; color: var(--text-muted); font-size: 12px; line-height: 1.6; max-width: 270px; background: rgba(255,255,255,0.75); padding: 14px 18px; border-radius: 18px; border: 1px dashed var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                        <div style="font-size: 22px; margin-bottom: 6px;">${data.scenario && data.scenario.icon ? data.scenario.icon : '🌱'}</div>
+                        <b style="color: var(--text-main); font-size: 13px;">${data.scenario && data.scenario.title ? escapeHtml(data.scenario.title) : 'Tahap Perkenalan'}</b><br>
+                        ${hintText}
                     </div>
                 `;
             }
@@ -1055,11 +1245,67 @@
         }
     }
 
-    // Reset conversation back to first meeting
-    async function confirmResetConversation() {
-        if (!confirm("Mulai percakapan baru dari awal?\\n\\nRiwayat chat saat ini akan diarsipkan dan kamu bisa menyapa AURA untuk berkenalan dari awal (🌱 Baru Kenal).")) {
-            return;
+    // Modal Scenario Management
+    let availableScenarios = [];
+
+    async function openScenarioModal() {
+        const modal = document.getElementById('scenario-modal');
+        if (!modal) return;
+
+        modal.style.display = 'flex';
+
+        if (availableScenarios.length === 0) {
+            try {
+                const res = await fetch('/api/v1/simulator/scenarios');
+                const data = await res.json();
+                if (data.success && Array.isArray(data.scenarios)) {
+                    availableScenarios = data.scenarios;
+                }
+            } catch (e) {
+                console.error('Failed to load scenarios:', e);
+            }
         }
+
+        const listEl = document.getElementById('scenario-list');
+        if (!listEl) return;
+
+        listEl.innerHTML = `
+            <button type="button" class="scenario-item-btn random-btn" onclick="selectScenario(null)">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <b style="font-size: 12.5px; color: #5B21B6;">🎲 Pilih Acak (Surprise Me)</b>
+                    <span class="scenario-badge" style="background: #DDD6FE; color: #4C1D95;">Random</span>
+                </div>
+                <div style="font-size: 11px; color: #6D28D9;">Sistem akan memilihkan skenario pertemuan unik secara acak!</div>
+            </button>
+        `;
+
+        availableScenarios.forEach(s => {
+            const isAura = s.initiator === 'aura';
+            const badgeClass = isAura ? 'badge-initiator-aura' : 'badge-initiator-user';
+            const badgeText = isAura ? 'AURA Chat Duluan' : 'Kamu Chat Duluan';
+
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'scenario-item-btn';
+            item.onclick = () => selectScenario(s.id);
+            item.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <b style="font-size: 12px; color: var(--text-main);">${escapeHtml(s.icon)} ${escapeHtml(s.title)}</b>
+                    <span class="scenario-badge ${badgeClass}">${badgeText}</span>
+                </div>
+                <div style="font-size: 11px; color: var(--text-sub); line-height: 1.35;">${escapeHtml(s.premise)}</div>
+            `;
+            listEl.appendChild(item);
+        });
+    }
+
+    function closeScenarioModal() {
+        const modal = document.getElementById('scenario-modal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    async function selectScenario(scenarioId) {
+        closeScenarioModal();
 
         try {
             const res = await fetch('/api/v1/simulator/reset', {
@@ -1067,7 +1313,10 @@
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                }
+                },
+                body: JSON.stringify({
+                    scenario_id: scenarioId
+                })
             });
             const data = await res.json();
             if (data.success) {

@@ -19,6 +19,8 @@ class RelationshipService
             ->first();
 
         if (!$conversation) {
+            $scenario = ScenarioService::getRandomScenario();
+
             $conversation = Conversation::create([
                 'user_id' => $user->id,
                 'title' => 'Obrolan dengan AURA',
@@ -27,8 +29,29 @@ class RelationshipService
                 'metadata' => [
                     'relationship_stage' => RelationshipStage::FIRST_MEETING->value,
                     'user_name' => null,
+                    'scenario' => $scenario,
                 ],
             ]);
+
+            // If scenario designates AURA as initiator, insert opening bubbles
+            if ($scenario['initiator'] === 'aura' && !empty($scenario['aura_opening'])) {
+                foreach ($scenario['aura_opening'] as $idx => $openingText) {
+                    Message::create([
+                        'conversation_id' => $conversation->id,
+                        'sender_type' => 'companion',
+                        'sender_id' => $character->id,
+                        'message_type' => MessageType::TEXT,
+                        'content' => $openingText,
+                        'is_read' => true,
+                        'metadata' => [
+                            'mood' => 'peaceful',
+                            'bubble_index' => $idx,
+                            'stage' => RelationshipStage::FIRST_MEETING->value,
+                            'scenario_id' => $scenario['id'],
+                        ],
+                    ]);
+                }
+            }
         }
 
         return $conversation;
@@ -95,10 +118,12 @@ class RelationshipService
         return $newStage;
     }
 
-    public function resetConversation(User $user, Character $character): Conversation
+    public function resetConversation(User $user, Character $character, ?string $scenarioId = null): Conversation
     {
         Conversation::where('user_id', $user->id)->update(['is_active' => false]);
         \App\Models\Memory::where('user_id', $user->id)->update(['is_active' => false]);
+
+        $scenario = ScenarioService::getScenarioById($scenarioId);
 
         $conversation = Conversation::create([
             'user_id' => $user->id,
@@ -108,8 +133,29 @@ class RelationshipService
             'metadata' => [
                 'relationship_stage' => RelationshipStage::FIRST_MEETING->value,
                 'user_name' => null,
+                'scenario' => $scenario,
             ],
         ]);
+
+        // If scenario designates AURA as initiator, insert opening bubbles
+        if ($scenario['initiator'] === 'aura' && !empty($scenario['aura_opening'])) {
+            foreach ($scenario['aura_opening'] as $idx => $openingText) {
+                Message::create([
+                    'conversation_id' => $conversation->id,
+                    'sender_type' => 'companion',
+                    'sender_id' => $character->id,
+                    'message_type' => MessageType::TEXT,
+                    'content' => $openingText,
+                    'is_read' => true,
+                    'metadata' => [
+                        'mood' => 'peaceful',
+                        'bubble_index' => $idx,
+                        'stage' => RelationshipStage::FIRST_MEETING->value,
+                        'scenario_id' => $scenario['id'],
+                    ],
+                ]);
+            }
+        }
 
         return $conversation;
     }
