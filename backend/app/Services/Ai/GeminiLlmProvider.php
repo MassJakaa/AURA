@@ -286,7 +286,24 @@ class GeminiLlmProvider implements LlmProviderInterface
             ]);
         }
 
-        if (!empty($context['scenario_context'])) {
+        $scenario = $context['scenario'] ?? null;
+        if (!empty($scenario)) {
+            $instructions[] = implode("\n", [
+                "============================================================",
+                "LATAR BELAKANG PERTEMUAN & GAYA BICARA KHUSUS SKENARIO:",
+                "Skenario: " . ($scenario['title'] ?? 'Perkenalan') . " (" . ($scenario['subtitle'] ?? '') . ")",
+                "Premis Cerita: " . ($scenario['premise'] ?? ''),
+                "Konteks Relasi Awal: " . ($scenario['prompt_context'] ?? ''),
+                "",
+                "GAYA BICARA & TONE KHUSUS AURA PADA SKENARIO INI:",
+                "- " . ($scenario['speech_style'] ?? 'Bicaralah santai, ramah, dan natural layaknya perempuan muda Indonesia.'),
+                "",
+                "PANDUAN RESPON KHUSUS SKENARIO:",
+                "- " . ($scenario['response_instruction'] ?? 'Sesuaikan kosa kata, panggilan, dan topik dengan skenario di atas.'),
+                "- JANGAN PERNAH menyimpang dari premis pertemuan di atas! Jika pengguna menyinggung topik skenario, sambut dengan antusiasme yang cocok dengan peranmu di skenario ini.",
+                "============================================================",
+            ]);
+        } elseif (!empty($context['scenario_context'])) {
             $instructions[] = implode("\n", [
                 "LATAR BELAKANG PERTEMUAN (SKENARIO & PREMIS AWAL):",
                 $context['scenario_context'],

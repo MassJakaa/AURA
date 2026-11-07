@@ -868,6 +868,10 @@
         </div>
         <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
             <div style="display: flex; align-items: center; gap: 6px;">
+                <button type="button" class="header-action-btn" onclick="openCurrentNarrativeModal()" title="Lihat Cerita Prolog Skenario" id="header-story-btn">
+                    <span style="font-size: 11px;">📖</span>
+                    <span>Kisah</span>
+                </button>
                 <button type="button" class="header-action-btn" onclick="openScenarioModal()" title="Mulai obrolan baru dengan skenario pilihan">
                     <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
@@ -907,23 +911,6 @@
             <div class="time-badge">
                 <span id="act-next">Rencana selanjutnya: ...</span>
             </div>
-        </div>
-
-        <!-- Scenario Premise Banner -->
-        <div class="scenario-card" id="scenario-card" style="display: none;">
-            <div class="scenario-header">
-                <div class="scenario-title-group">
-                    <span id="scenario-icon">☕</span>
-                    <span id="scenario-title" style="font-weight: 700; font-size: 12px; color: var(--text-main);">Dikenalin Teman Tongkrongan</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 5px;">
-                    <span id="scenario-initiator-badge" class="scenario-badge badge-initiator-aura">AURA Chat Duluan</span>
-                    <button type="button" class="scenario-story-btn" onclick="openCurrentNarrativeModal()" title="Baca Narasi Kisah Skenario">
-                        📖 Baca Kisah
-                    </button>
-                </div>
-            </div>
-            <p id="scenario-premise" class="scenario-desc">Memuat skenario...</p>
         </div>
 
         <!-- Chat bubble area -->
@@ -1364,41 +1351,15 @@
     }
 
     // Render scenario premise banner
+    // Keep active scenario in state
     function renderScenarioBanner(scenario) {
-        const card = document.getElementById('scenario-card');
-        if (!card || !scenario) return;
-
+        if (!scenario) return;
         currentScenario = scenario;
-
-        const iconEl = document.getElementById('scenario-icon');
-        const titleEl = document.getElementById('scenario-title');
-        const badgeEl = document.getElementById('scenario-initiator-badge');
-        const premiseEl = document.getElementById('scenario-premise');
-
-        if (iconEl) iconEl.innerText = scenario.icon || '🌱';
-        if (titleEl) titleEl.innerText = scenario.title || 'Skenario Pertemuan';
-        if (premiseEl) premiseEl.innerText = scenario.premise || '';
-
-        if (badgeEl) {
-            if (scenario.initiator === 'aura') {
-                badgeEl.innerText = 'AURA Chat Duluan';
-                badgeEl.className = 'scenario-badge badge-initiator-aura';
-            } else {
-                badgeEl.innerText = 'Kamu Chat Duluan';
-                badgeEl.className = 'scenario-badge badge-initiator-user';
-            }
-        }
 
         const input = document.getElementById('chat-input');
         if (input) {
-            if (scenario.initiator === 'user' && scenario.user_hint && (!conversationHistory.length || conversationHistory.length === 0)) {
-                input.placeholder = scenario.user_hint;
-            } else {
-                input.placeholder = 'Ketik pesan untuk AURA...';
-            }
+            input.placeholder = 'Ketik pesan untuk AURA...';
         }
-
-        card.style.display = 'block';
     }
 
     // Load full persistent chat history from SQLite backend
@@ -1477,17 +1438,19 @@
                     }
                 });
             } else {
-                const hintText = (data.scenario && data.scenario.user_hint)
-                    ? data.scenario.user_hint
-                    : 'Kirim pesan pertama kamu (misal: <i>"Halo Aura"</i> atau <i>"Hai!"</i>) untuk mulai berkenalan dengan AURA ✨';
-
                 chatBox.innerHTML = `
-                    <div id="empty-chat-hint" style="text-align: center; margin: 35px auto 20px auto; color: var(--text-muted); font-size: 12px; line-height: 1.6; max-width: 270px; background: rgba(255,255,255,0.75); padding: 14px 18px; border-radius: 18px; border: 1px dashed var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
-                        <div style="font-size: 22px; margin-bottom: 6px;">${data.scenario && data.scenario.icon ? data.scenario.icon : '🌱'}</div>
-                        <b style="color: var(--text-main); font-size: 13px;">${data.scenario && data.scenario.title ? escapeHtml(data.scenario.title) : 'Tahap Perkenalan'}</b><br>
-                        ${hintText}
+                    <div style="text-align: center; margin: 30px auto 15px auto; font-size: 11px; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px;">
+                        HARI INI
                     </div>
                 `;
+            }
+
+            const hasUserEverMessaged = Array.isArray(data.messages) && data.messages.some(m => m.sender === 'user');
+            if (!hasShownInitialPrologue && data.scenario && !hasUserEverMessaged) {
+                hasShownInitialPrologue = true;
+                setTimeout(() => {
+                    showNarrativeModal(data.scenario);
+                }, 150);
             }
 
             const scroll = document.getElementById('content-scroll');
@@ -1504,6 +1467,7 @@
     // Modal Scenario & Narrative Management
     let availableScenarios = [];
     let currentScenario = null;
+    let hasShownInitialPrologue = false;
 
     function showNarrativeModal(scenario) {
         if (!scenario) return;
@@ -1554,7 +1518,7 @@
         }
 
         if (btnTextEl) {
-            btnTextEl.innerText = isAura ? 'Lihat Pesan Masuk ✨' : 'Mulai Kirim Pesan ✍️';
+            btnTextEl.innerText = isAura ? 'Masuk ke Chat ✨' : 'Mulai Chat 💬';
         }
 
         modal.style.display = 'flex';
@@ -1564,12 +1528,10 @@
         const modal = document.getElementById('narrative-modal');
         if (modal) modal.style.display = 'none';
 
-        if (currentScenario && currentScenario.initiator === 'user') {
-            const input = document.getElementById('chat-input');
-            if (input) {
-                if (currentScenario.user_hint && (!conversationHistory.length || conversationHistory.length === 0)) {
-                    input.placeholder = currentScenario.user_hint;
-                }
+        const input = document.getElementById('chat-input');
+        if (input) {
+            input.placeholder = 'Ketik pesan untuk AURA...';
+            if (currentScenario && currentScenario.initiator === 'user') {
                 input.focus();
             }
         }
@@ -1670,6 +1632,7 @@
                 isAuraProcessing = false;
                 isAuraReading = false;
                 hasProactedThisSession = false;
+                hasShownInitialPrologue = true;
                 setHeaderStatus('Virtual Life Online');
 
                 await loadHistory();

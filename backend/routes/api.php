@@ -304,7 +304,8 @@ Route::prefix('v1/simulator')->group(function () {
             'chat_density' => $density,
         ];
 
-        $scenario = $conversation->metadata['scenario'] ?? null;
+        $scenario = \App\Services\Personalization\ScenarioService::hydrateScenario($conversation->metadata['scenario'] ?? null);
+        $context['scenario'] = $scenario;
         if (!empty($scenario['prompt_context'])) {
             $context['scenario_context'] = $scenario['prompt_context'];
         }
@@ -440,6 +441,12 @@ Route::prefix('v1/simulator')->group(function () {
             'recent_conversation' => $recentConversation,
             'is_proactive' => true,
         ];
+
+        $scenario = \App\Services\Personalization\ScenarioService::hydrateScenario($conversation->metadata['scenario'] ?? null);
+        $context['scenario'] = $scenario;
+        if (!empty($scenario['prompt_context'])) {
+            $context['scenario_context'] = $scenario['prompt_context'];
+        }
 
         $reply = $llm->generateResponse($context, '');
 
