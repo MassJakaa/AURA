@@ -38,8 +38,9 @@ chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /
 
 # Check APP_KEY
 if [ -z "$APP_KEY" ]; then
-    echo "==> APP_KEY not provided. Generating application encryption key..."
-    php artisan key:generate --force
+    echo "==> APP_KEY not provided. Generating ephemeral application encryption key (set APP_KEY in your environment variables for persistence)..."
+    APP_KEY="base64:$(head -c 32 /dev/urandom | base64)"
+    export APP_KEY
 fi
 
 # Run database migrations
