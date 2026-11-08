@@ -147,7 +147,7 @@
             height: 100%;
             border-radius: 50%;
             object-fit: cover;
-            object-position: 66% 22%;
+            object-position: 48% 30%;
             border: 2.5px solid var(--accent-lavender);
             background: #F2E8D9;
         }
@@ -428,7 +428,7 @@
             height: 100%;
             border-radius: 50%;
             object-fit: cover;
-            object-position: 66% 22%;
+            object-position: 48% 30%;
             border: 2px solid var(--accent-lavender);
             background: #F2E8D9;
         }
@@ -1221,7 +1221,7 @@
             <!-- AURA Character Card -->
             <div class="character-profile-card">
                 <div class="character-avatar-wrap">
-                    <img src="/assets/characters/aura_master_reference.jpg" alt="AURA" class="character-avatar-img">
+                    <img src="/assets/characters/aura_profile.png?v=2" alt="AURA" class="character-avatar-img">
                     <span class="online-indicator-dot" id="sidebar-status-dot" title="AURA Sedang Online"></span>
                 </div>
                 <div class="character-info">
@@ -1297,7 +1297,7 @@
                     </svg>
                 </button>
                 <div class="chat-header-avatar">
-                    <img src="/assets/characters/aura_master_reference.jpg" alt="AURA">
+                    <img src="/assets/characters/aura_profile.png?v=2" alt="AURA">
                     <span class="header-avatar-dot"></span>
                 </div>
                 <div class="chat-header-titles">
