@@ -19,7 +19,8 @@ class GeminiLlmProvider implements LlmProviderInterface
 
     public function generateResponse(array $context, string $userMessage): string
     {
-        if (empty($this->apiKey)) {
+        if (empty($this->apiKey) || $this->apiKey === 'your_gemini_api_key_here') {
+            error_log("[AURA GEMINI ALERT] API Key is missing or still set to placeholder 'your_gemini_api_key_here'!");
             Log::info("Gemini API key is not configured. Falling back to contextual rule response.");
             return $this->fallbackResponse($context, $userMessage);
         }
@@ -27,9 +28,9 @@ class GeminiLlmProvider implements LlmProviderInterface
         $candidateModels = array_unique([
             $this->model,
             'gemini-2.5-flash',
+            'gemini-flash-latest',
             'gemini-2.0-flash',
             'gemini-1.5-flash',
-            'gemini-flash-latest',
         ]);
 
         $systemPrompt = $this->buildSystemInstruction($context);
@@ -67,9 +68,11 @@ class GeminiLlmProvider implements LlmProviderInterface
                         return $reply;
                     }
                 } else {
+                    error_log("[AURA GEMINI ALERT] Model {$candidateModel} returned HTTP {$response->status()}: " . substr($response->body(), 0, 250));
                     Log::warning("Gemini model {$candidateModel} returned {$response->status()}: " . substr($response->body(), 0, 150));
                 }
             } catch (\Throwable $e) {
+                error_log("[AURA GEMINI ALERT] Model {$candidateModel} threw exception: " . $e->getMessage());
                 Log::warning("Gemini exception with model {$candidateModel}: {$e->getMessage()}");
             }
         }

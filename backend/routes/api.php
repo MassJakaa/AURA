@@ -133,6 +133,40 @@ Route::prefix('v1/simulator')->group(function () {
         ]);
     });
 
+    Route::get('/debug-llm', function () {
+        $key = config('services.gemini.api_key') ?? env('GEMINI_API_KEY');
+        $model = config('services.gemini.model') ?? env('GEMINI_MODEL', 'gemini-2.5-flash');
+
+        $maskedKey = empty($key) ? 'NOT_SET' : (substr($key, 0, 8) . '...' . substr($key, -4) . ' (length: ' . strlen($key) . ')');
+        $isPlaceholder = ($key === 'your_gemini_api_key_here');
+
+        $testEndpoint = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$key}";
+
+        $googleResponse = null;
+        $error = null;
+        try {
+            $res = \Illuminate\Support\Facades\Http::timeout(10)->post($testEndpoint, [
+                'contents' => [
+                    ['role' => 'user', 'parts' => [['text' => 'Halo']]]
+                ]
+            ]);
+            $googleResponse = [
+                'status' => $res->status(),
+                'body' => $res->json() ?? $res->body(),
+            ];
+        } catch (\Throwable $e) {
+            $error = $e->getMessage();
+        }
+
+        return response()->json([
+            'api_key' => $maskedKey,
+            'model' => $model,
+            'is_placeholder' => $isPlaceholder,
+            'google_response' => $googleResponse,
+            'exception' => $error,
+        ]);
+    });
+
     Route::post('/reset', function (
         Request $request,
         \App\Services\Character\CharacterService $charService,
