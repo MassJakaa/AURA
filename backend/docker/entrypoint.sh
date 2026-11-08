@@ -44,11 +44,16 @@ fi
 chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
 
-# 6. Ensure APP_KEY exists
+# 6. Ensure APP_KEY is guaranteed to exist and exported
+CURRENT_KEY=$(grep "^APP_KEY=" /var/www/html/.env | cut -d '=' -f2-)
 if [ -z "$APP_KEY" ]; then
-    if ! grep -q "^APP_KEY=base64:" /var/www/html/.env; then
+    if [ -z "$CURRENT_KEY" ] || [ "$CURRENT_KEY" = "" ]; then
         echo "==> Generating application key..."
-        php artisan key:generate --force || true
+        GEN_KEY=$(php -r "echo 'base64:'.base64_encode(random_bytes(32));")
+        export APP_KEY="$GEN_KEY"
+        sed -i "s|^APP_KEY=.*|APP_KEY=${GEN_KEY}|g" /var/www/html/.env
+    else
+        export APP_KEY="$CURRENT_KEY"
     fi
 fi
 
