@@ -14,7 +14,7 @@ class GeminiLlmProvider implements LlmProviderInterface
     public function __construct()
     {
         $this->apiKey = config('services.gemini.api_key') ?? env('GEMINI_API_KEY', '');
-        $this->model = config('services.gemini.model') ?? env('GEMINI_MODEL', 'gemini-1.5-flash');
+        $this->model = config('services.gemini.model') ?? env('GEMINI_MODEL', 'gemini-3.1-flash-lite');
     }
 
     public function generateResponse(array $context, string $userMessage): string
@@ -27,9 +27,11 @@ class GeminiLlmProvider implements LlmProviderInterface
 
         $candidateModels = array_unique([
             $this->model,
-            'gemini-2.5-flash',
+            'gemini-3.1-flash-lite',
+            'gemini-3.8-flash',
+            'gemini-3.5-flash',
             'gemini-flash-latest',
-            'gemini-2.0-flash',
+            'gemini-2.5-flash',
             'gemini-1.5-flash',
         ]);
 
